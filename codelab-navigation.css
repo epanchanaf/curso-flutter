@@ -62,6 +62,17 @@
   color: #302874;
 }
 
+.sidebar-week a.current-session {
+  background: #4b4198;
+  color: #fff;
+  font-weight: 800;
+}
+
+.sidebar-week a.current-session span {
+  background: var(--mint);
+  color: #302874;
+}
+
 .sidebar-week a span {
   display: grid;
   flex: 0 0 19px;
@@ -97,6 +108,9 @@
 .session-page-hero p:not(.eyebrow) { max-width: 760px; margin: 18px 0 0; color: #e2e5fb; }
 
 .session-page-main { padding: 60px 0 76px; }
+.session-page-main.session-codelab-main { padding: 0; }
+.session-codelab-layout { padding-top: 42px; }
+.session-codelab-layout .codelab-session { min-width: 0; }
 .session-page-grid { display: grid; grid-template-columns: 255px minmax(0, 1fr); gap: 42px; align-items: start; }
 .session-facts { position: sticky; top: 22px; padding: 20px; border: 1px solid var(--line); border-radius: 11px; background: #f8f9fe; }
 .session-facts p { margin: 0 0 12px; color: var(--muted); font-size: 0.84rem; }
