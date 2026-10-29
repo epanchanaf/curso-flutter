@@ -3,10 +3,9 @@ const codelabWeeks = [
   { number: 2, title: 'Layouts, listas y navegación', sessions: [{ number: 3, hours: '3 h', title: 'Layouts, listas y componentes reutilizables' }, { number: 4, hours: '2 h', title: 'Navegación y comunicación entre pantallas' }] },
   { number: 3, title: 'Diseño técnico y arquitectura MVVM', sessions: [{ number: 5, hours: '3 h', title: 'Especificación del proyecto y modelado de datos' }, { number: 6, hours: '2 h', title: 'Arquitectura MVVM y estructura por funcionalidades' }] },
   { number: 4, title: 'Consumo de API REST', sessions: [{ number: 7, hours: '3 h', title: 'HTTP, asincronía, JSON y modelos' }, { number: 8, hours: '2 h', title: 'Repository, ViewModel y estados asíncronos' }] },
-  { number: 5, title: 'Formularios y operaciones CRUD', sessions: [{ number: 9, hours: '3 h', title: 'Formularios y validación de datos' }, { number: 10, hours: '2 h', title: 'POST, PATCH/PUT y DELETE' }] },
-  { number: 6, title: 'Manejo de errores y pruebas', sessions: [{ number: 11, hours: '3 h', title: 'Errores, excepciones y resiliencia' }, { number: 12, hours: '2 h', title: 'Pruebas unitarias y de widgets' }] },
-  { number: 7, title: 'Persistencia, búsqueda y experiencia de usuario', sessions: [{ number: 13, hours: '3 h', title: 'Sesión, preferencias y persistencia ligera' }, { number: 14, hours: '2 h', title: 'Búsqueda, filtros y accesibilidad básica' }] },
-  { number: 8, title: 'Integración, calidad y entrega', sessions: [{ number: 15, hours: '3 h', title: 'Integración, depuración y preparación de entrega' }, { number: 16, hours: '2 h', title: 'APK, demostración y retrospectiva' }] }
+  { number: 5, title: 'Formularios, CRUD y resiliencia', sessions: [{ number: 9, hours: '3 h', title: 'Formularios, validación y operaciones CRUD' }, { number: 10, hours: '2 h', title: 'Errores, excepciones y resiliencia' }] },
+  { number: 6, title: 'Pruebas y persistencia', sessions: [{ number: 11, hours: '3 h', title: 'Pruebas unitarias y de widgets' }, { number: 12, hours: '2 h', title: 'Sesión, preferencias y persistencia ligera' }] },
+  { number: 7, title: 'Experiencia, calidad y entrega', sessions: [{ number: 13, hours: '3 h', title: 'Búsqueda, filtros y accesibilidad básica' }, { number: 14, hours: '2 h', title: 'Calidad, APK, demostración y evaluación final' }] }
 ];
 
 const weekTabs = document.querySelector('.codelab-week-tabs');

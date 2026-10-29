@@ -5,7 +5,7 @@ Este archivo es la fuente de verdad para elaborar las sesiones y los contenidos 
 ## Contexto
 
 - Audiencia: estudiantes de quinto nivel de una carrera tecnológica.
-- Duración: ocho semanas, 16 sesiones y 40 horas. Cada semana contiene una sesión de 3 horas y una sesión de 2 horas.
+- Duración: siete semanas, 14 sesiones y 35 horas. Cada semana contiene una sesión de 3 horas y una sesión de 2 horas. Para no eliminar contenido, los temas afines se integran en dos sesiones: formularios con CRUD; y calidad, APK, demostración y evaluación final.
 - Producto: TaskFlow, aplicación Android en Flutter conectada a una API REST.
 - Arquitectura: MVVM orientado por funcionalidades, Repository pattern y ApiService.
 

@@ -1,4 +1,4 @@
-const weeks = [
+const sourceWeeks = [
   {
     number: 1,
     title: "Fundamentos de Flutter y Dart",
@@ -183,6 +183,30 @@ const weeks = [
       }
     ]
   }
+];
+
+function mergeSessions(number, hours, title, first, second) {
+  return {
+    number,
+    hours,
+    title,
+    goal: `${first.goal} Además, ${second.goal}`,
+    start: [...first.start, ...second.start],
+    development: [...first.development, ...second.development],
+    close: [...first.close, ...second.close],
+    guided: `${first.guided} Después, ${second.guided}`,
+    autonomous: `${first.autonomous} Después, ${second.autonomous}`
+  };
+}
+
+const weeks = [
+  { number: 1, title: "Fundamentos de Flutter y Dart", outcome: "Entorno preparado y primera pantalla funcional de TaskFlow.", sessions: sourceWeeks[0].sessions },
+  { number: 2, title: "Layouts, listas y navegación", outcome: "App con listado estático, pantalla de detalle y navegación entre rutas.", sessions: sourceWeeks[1].sessions },
+  { number: 3, title: "Diseño técnico y arquitectura MVVM", outcome: "Proyecto definido, modelado y estructurado por funcionalidades.", sessions: sourceWeeks[2].sessions },
+  { number: 4, title: "Consumo de API REST", outcome: "Tareas remotas representadas en pantalla con estados asíncronos claros.", sessions: sourceWeeks[3].sessions },
+  { number: 5, title: "Formularios, CRUD y resiliencia", outcome: "La app crea, edita y elimina información con validación y manejo de fallos recuperables.", sessions: [mergeSessions(9, "3 horas", "Formularios, validación y operaciones CRUD", sourceWeeks[4].sessions[0], sourceWeeks[4].sessions[1]), { ...sourceWeeks[5].sessions[0], number: 10, hours: "2 horas" }] },
+  { number: 6, title: "Pruebas y persistencia", outcome: "Comportamientos críticos probados y preferencias útiles conservadas entre aperturas.", sessions: [{ ...sourceWeeks[5].sessions[1], number: 11, hours: "3 horas" }, { ...sourceWeeks[6].sessions[0], number: 12, hours: "2 horas" }] },
+  { number: 7, title: "Experiencia, calidad y entrega", outcome: "App más fácil de usar, validada, documentada y entregada como APK instalable.", sessions: [{ ...sourceWeeks[6].sessions[1], number: 13, hours: "3 horas" }, mergeSessions(14, "2 horas", "Calidad, APK, demostración y evaluación final", sourceWeeks[7].sessions[0], sourceWeeks[7].sessions[1])] }
 ];
 
 const tabs = document.querySelector("#week-tabs");
