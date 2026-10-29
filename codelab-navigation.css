@@ -1,168 +1,133 @@
-.codelab-navigator {
-  padding: 42px 0;
-  background: #f3f2ff;
-  border-bottom: 1px solid #dedcf8;
-}
-
-.navigator-heading {
-  display: flex;
-  justify-content: space-between;
-  align-items: end;
+.codelab-layout {
+  display: grid;
+  grid-template-columns: 265px minmax(0, 1fr);
+  align-items: start;
   gap: 36px;
-  margin-bottom: 22px;
+  padding: 42px 0 76px;
 }
 
-.navigator-heading h2 {
-  margin: 0;
-  font-size: clamp(1.65rem, 3vw, 2.4rem);
-  letter-spacing: -0.05em;
-}
-
-.navigator-heading > p {
-  max-width: 495px;
-  margin: 0;
-  color: var(--muted);
-  font-size: 0.9rem;
-}
-
-.navigator-panel {
-  padding: 22px;
+.codelab-sidebar {
+  position: sticky;
+  top: 22px;
+  max-height: calc(100vh - 44px);
+  overflow-y: auto;
+  padding: 17px;
   border: 1px solid #dad7ff;
-  border-radius: 13px;
-  background: #fff;
-  box-shadow: 0 12px 30px rgba(52, 43, 125, 0.06);
+  border-radius: 12px;
+  background: #f8f7ff;
+}
+
+.sidebar-home {
+  display: block;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #dedcf8;
+  color: var(--purple);
+  font-weight: 800;
+  text-decoration: none;
 }
 
 .navigator-label {
-  margin: 0 0 10px;
-  font: 500 0.7rem "DM Mono", monospace;
-  letter-spacing: 0.1em;
+  margin: 0 0 8px;
   color: #4d459e;
-}
-
-.codelab-week-tabs {
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  gap: 7px;
-  margin-bottom: 22px;
-}
-
-.codelab-week-tabs button {
-  border: 1px solid #d9d7ef;
-  border-radius: 7px;
-  padding: 9px 5px;
-  background: #fafaff;
-  color: #4f5872;
-  font: 700 0.75rem Manrope, Arial, sans-serif;
-  cursor: pointer;
-}
-
-.codelab-week-tabs button:hover,
-.codelab-week-tabs button.active {
-  border-color: var(--purple);
-  background: var(--purple);
-  color: #fff;
-}
-
-.codelab-session-links {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-.codelab-session-link {
-  width: 100%;
-  display: grid;
-  grid-template-columns: 116px 1fr auto;
-  align-items: center;
-  gap: 13px;
-  padding: 14px 15px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: #fff;
-  color: var(--ink);
-  font: 600 0.84rem Manrope, Arial, sans-serif;
-  text-align: left;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.codelab-session-link:hover {
-  border-color: #8d86dc;
-  background: #faf9ff;
-}
-
-.codelab-session-link span:first-child {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-
-.codelab-session-link b {
-  color: var(--purple);
-  font-size: 0.78rem;
-}
-
-.codelab-session-link small {
-  color: var(--muted);
   font: 500 0.68rem "DM Mono", monospace;
+  letter-spacing: 0.09em;
 }
 
-.codelab-session-link i {
-  color: #5a50aa;
-  font: 500 0.67rem "DM Mono", monospace;
-  font-style: normal;
-  white-space: nowrap;
+.sidebar-week + .sidebar-week { margin-top: 14px; }
+
+.sidebar-week h2 {
+  margin: 0 0 5px;
+  color: #4b437f;
+  font: 700 0.73rem Manrope, Arial, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
-.navigator-status {
-  margin: 17px 1px 0;
-  color: #535d77;
-  font-size: 0.82rem;
+.sidebar-week a {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 7px 5px;
+  border-radius: 6px;
+  color: #4f5972;
+  font-size: 0.76rem;
+  line-height: 1.32;
+  text-decoration: none;
 }
 
-.codelab-upcoming {
-  margin-top: 15px;
-  padding: 19px 22px;
-  border-radius: 10px;
-  background: #17203a;
+.sidebar-week a:hover,
+.sidebar-week a:focus-visible {
+  background: #e6e3ff;
+  color: #302874;
+}
+
+.sidebar-week a span {
+  display: grid;
+  flex: 0 0 19px;
+  width: 19px;
+  height: 19px;
+  place-items: center;
+  border-radius: 50%;
+  background: #dedbff;
+  color: #463c9b;
+  font: 500 0.63rem "DM Mono", monospace;
+}
+
+.codelab-content { min-width: 0; }
+.codelab-content .codelab-overview { padding: 0 0 45px; }
+.codelab-content .codelab-section { padding-top: 55px; }
+.codelab-content .codelab-section > .container { width: 100%; }
+
+.session-page {
+  background: #fff;
+}
+
+.session-page-hero {
+  padding: 44px 0 47px;
+  background: linear-gradient(118deg, #171a3c, #44378e 56%, #41777c);
   color: #fff;
 }
 
-.codelab-upcoming .eyebrow {
-  margin-bottom: 7px;
-  color: var(--mint);
+.session-page-hero .nav { margin-bottom: 40px; }
+.session-page-hero .brand,
+.session-page-hero .nav-links a { color: #fff; }
+.session-page-hero .eyebrow { color: var(--mint); }
+.session-page-hero h1 { max-width: 850px; margin: 0; font-size: clamp(2.3rem, 4.5vw, 4.2rem); line-height: 1.06; letter-spacing: -0.06em; }
+.session-page-hero p:not(.eyebrow) { max-width: 760px; margin: 18px 0 0; color: #e2e5fb; }
+
+.session-page-main { padding: 60px 0 76px; }
+.session-page-grid { display: grid; grid-template-columns: 255px minmax(0, 1fr); gap: 42px; align-items: start; }
+.session-facts { position: sticky; top: 22px; padding: 20px; border: 1px solid var(--line); border-radius: 11px; background: #f8f9fe; }
+.session-facts p { margin: 0 0 12px; color: var(--muted); font-size: 0.84rem; }
+.session-facts strong { display: block; color: var(--ink); font-size: 0.82rem; }
+.session-facts a { color: var(--purple); font-size: 0.82rem; font-weight: 800; }
+.session-objective { margin: 0 0 26px; padding: 19px 21px; border-left: 4px solid var(--purple); border-radius: 8px; background: #f1efff; color: #40377b; }
+.session-moments { display: grid; gap: 15px; }
+.session-moment { padding: 23px; border: 1px solid var(--line); border-radius: 10px; }
+.session-moment h2 { margin: 0 0 9px; font-size: 1.16rem; letter-spacing: -0.03em; }
+.session-moment ul { margin: 0; padding-left: 20px; color: var(--muted); font-size: 0.91rem; }
+.session-moment li + li { margin-top: 7px; }
+.session-practice { margin-top: 18px; padding: 23px; border-radius: 10px; background: #1e2145; color: #fff; }
+.session-practice h2 { margin: 0 0 8px; font-size: 1.05rem; }
+.session-practice p { margin: 0; color: #e0e4ff; font-size: 0.9rem; }
+.session-practice p + h2 { margin-top: 20px; }
+.session-practice code { background: #444778; color: #fff; }
+.session-detail-link { display: inline-block; margin-top: 20px; color: var(--mint); font-weight: 800; }
+
+@media (max-width: 900px) {
+  .codelab-layout,
+  .session-page-grid { grid-template-columns: 1fr; }
+  .codelab-sidebar,
+  .session-facts { position: static; max-height: none; }
+  .codelab-sidebar-menu { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .sidebar-week + .sidebar-week { margin-top: 0; }
 }
 
-.codelab-upcoming h3 {
-  margin: 0;
-  font-size: 1.08rem;
-}
-
-.codelab-upcoming p:not(.eyebrow) {
-  margin: 6px 0 12px;
-  color: #d7deef;
-  font-size: 0.88rem;
-}
-
-.codelab-upcoming a {
-  color: var(--mint);
-  font-weight: 800;
-  font-size: 0.84rem;
-}
-
-@media (max-width: 760px) {
-  .navigator-heading { display: block; }
-  .navigator-heading > p { margin-top: 10px; }
-  .codelab-week-tabs { grid-template-columns: repeat(4, 1fr); }
-  .codelab-session-links { grid-template-columns: 1fr; }
-  .codelab-session-link { grid-template-columns: 92px 1fr; }
-  .codelab-session-link i { grid-column: 2; }
-  .navigator-panel { padding: 16px; }
-}
-
-@media (max-width: 420px) {
-  .codelab-week-tabs { grid-template-columns: repeat(2, 1fr); }
-  .codelab-session-link { grid-template-columns: 1fr; }
-  .codelab-session-link i { grid-column: auto; }
+@media (max-width: 620px) {
+  .codelab-layout { gap: 24px; padding-top: 28px; }
+  .codelab-sidebar-menu { grid-template-columns: 1fr; }
+  .session-page-hero { padding: 28px 0 34px; }
+  .session-page-hero .nav { margin-bottom: 30px; }
+  .session-page-main { padding: 40px 0 60px; }
 }

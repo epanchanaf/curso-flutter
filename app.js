@@ -186,16 +186,17 @@ const sourceWeeks = [
 ];
 
 function mergeSessions(number, hours, title, first, second) {
+  const continueSentence = (text) => text.charAt(0).toLowerCase() + text.slice(1);
   return {
     number,
     hours,
     title,
-    goal: `${first.goal} Además, ${second.goal}`,
+    goal: `${first.goal} Además, ${continueSentence(second.goal)}`,
     start: [...first.start, ...second.start],
     development: [...first.development, ...second.development],
     close: [...first.close, ...second.close],
-    guided: `${first.guided} Después, ${second.guided}`,
-    autonomous: `${first.autonomous} Después, ${second.autonomous}`
+    guided: `${first.guided} Después, ${continueSentence(second.guided)}`,
+    autonomous: `${first.autonomous} Después, ${continueSentence(second.autonomous)}`
   };
 }
 
@@ -209,8 +210,12 @@ const weeks = [
   { number: 7, title: "Experiencia, calidad y entrega", outcome: "App más fácil de usar, validada, documentada y entregada como APK instalable.", sessions: [{ ...sourceWeeks[6].sessions[1], number: 13, hours: "3 horas" }, mergeSessions(14, "2 horas", "Calidad, APK, demostración y evaluación final", sourceWeeks[7].sessions[0], sourceWeeks[7].sessions[1])] }
 ];
 
+window.courseWeeks = weeks;
+
 const tabs = document.querySelector("#week-tabs");
 const content = document.querySelector("#week-content");
+
+if (tabs && content) {
 
 function sessionMarkup(session) {
   const list = (items) => `<ul>${items.map(item => `<li>${item}</li>`).join("")}</ul>`;
@@ -267,3 +272,4 @@ content.addEventListener("click", (event) => {
 });
 
 renderWeek(0);
+}

@@ -12,11 +12,11 @@
     <link rel="stylesheet" href="codelab-navigation.css" />
   </head>
   <body class="codelab-page">
-    <a class="skip-link" href="#codelab-navigation">Ir a la navegación de codelabs</a>
+    <a class="skip-link" href="#menu-codelabs">Ir al menú de codelabs</a>
     <header class="codelab-hero">
       <nav class="container nav" aria-label="Navegación principal">
         <a class="brand" href="index.html"><span class="brand-mark">F</span><span>Curso Flutter</span></a>
-        <div class="nav-links"><a href="index.html">Plan del curso</a><a href="integrador.html">Proyecto</a><a href="especificaciones.html">Specs</a><a href="#codelab-navigation">Codelabs</a></div>
+        <div class="nav-links"><a href="index.html">Plan del curso</a><a href="integrador.html">Proyecto</a><a href="especificaciones.html">Specs</a><a href="#menu-codelabs">Codelabs</a></div>
       </nav>
       <div class="container codelab-intro">
         <p class="eyebrow">CODELABS · RUTA DE LABORATORIOS</p>
@@ -25,25 +25,14 @@
         <div class="intro-badges"><span>7 semanas</span><span>14 sesiones</span><span>Android + Flutter</span></div>
       </div>
     </header>
-    <section class="codelab-navigator" id="codelab-navigation" aria-labelledby="codelab-navigation-title">
-      <div class="container">
-        <div class="navigator-heading"><div><p class="eyebrow">NAVEGACIÓN DE CONTENIDOS</p><h2 id="codelab-navigation-title">Elige una semana y su sesión</h2></div><p>Los accesos activos llevan al codelab detallado. Las siguientes semanas quedan organizadas desde ahora para incorporar sus guías sin cambiar la navegación.</p></div>
-        <div class="navigator-panel">
-          <div>
-            <p class="navigator-label">1. Semana</p>
-            <div class="codelab-week-tabs" role="tablist" aria-label="Elegir semana"></div>
-          </div>
-          <div>
-            <p class="navigator-label">2. Sesión</p>
-            <div class="codelab-session-links" aria-live="polite"></div>
-          </div>
-          <p class="navigator-status" aria-live="polite"></p>
-        </div>
-        <aside class="codelab-upcoming" hidden aria-live="polite"><p class="eyebrow">PRÓXIMAMENTE</p><h3></h3><p></p><a href="index.html#semanas">Ver la planificación de esta sesión en el plan del curso →</a></aside>
-      </div>
-    </section>
-    <main>
-      <section class="codelab-overview container">
+    <main class="container codelab-layout">
+      <aside class="codelab-sidebar" id="menu-codelabs" aria-label="Menú lateral de codelabs">
+        <a class="sidebar-home" href="codelabs.html">Índice de codelabs</a>
+        <p class="navigator-label">SEMANAS Y SESIONES</p>
+        <nav class="codelab-sidebar-menu" aria-label="Seleccionar sesión"></nav>
+      </aside>
+      <div class="codelab-content">
+      <section class="codelab-overview">
         <div><p class="eyebrow">ANTES DE EMPEZAR</p><h2>Lista de preparación</h2></div>
         <ol class="check-steps">
           <li><strong>Flutter SDK:</strong> abre una terminal y ejecuta <code>flutter doctor</code>. Revisa especialmente Android toolchain.</li>
@@ -98,8 +87,9 @@
           <div class="finish-line"><h3>Resultado esperado de la semana 1</h3><p>TaskFlow inicia en Android, muestra datos personalizados y responde a acciones para agregar o completar tareas. Guarda una captura, ejecuta <code>flutter analyze</code> y conserva los commits de las dos sesiones.</p></div>
         </div>
       </section>
+      </div>
     </main>
-    <footer><div class="container footer-content"><span>Curso Flutter · Codelabs del curso</span><a href="#codelab-navigation">Volver a la navegación ↑</a></div></footer>
+    <footer><div class="container footer-content"><span>Curso Flutter · Codelabs del curso</span><a href="#menu-codelabs">Volver al menú ↑</a></div></footer>
     <script src="syntax.js"></script>
     <script src="codelab-navigation.js"></script>
   </body>

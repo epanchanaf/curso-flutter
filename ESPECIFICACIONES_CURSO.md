@@ -60,6 +60,8 @@ Para sesiones con programación, crear un codelab que incluya:
 
 Los bloques Dart se muestran con resaltado de sintaxis Dart y un botón Copiar. Los comandos de terminal se identifican como Shell y también deben poder copiarse.
 
+Cada sesión debe contar con su propia página (`sesion-XX.html`) y estar enlazada desde el menú lateral de Codelabs, agrupado por semana. La página debe mostrar objetivo, los tres momentos de clase, ejemplo guiado, trabajo integrador incremental y regla de commit/push.
+
 ## Stack técnico
 
 - Estado e inyección: `provider` + `ChangeNotifier`.
