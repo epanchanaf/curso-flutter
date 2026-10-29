@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Plan didáctico de Flutter de ocho semanas: una aplicación Android conectada a una API REST." />
+    <title>Curso Flutter | Plan de curso</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#contenido">Ir al contenido principal</a>
+    <header class="hero" id="inicio">
+      <nav class="container nav" aria-label="Navegación principal">
+        <a class="brand" href="#inicio" aria-label="Inicio de Curso Flutter">
+          <span class="brand-mark">F</span><span>Curso Flutter</span>
+        </a>
+        <div class="nav-links">
+          <a href="#curso">Curso</a>
+          <a href="#arquitectura">Arquitectura</a>
+          <a href="codelabs.html">Codelabs</a>
+          <a href="integrador.html">Proyecto</a>
+          <a href="especificaciones.html">Specs</a>
+          <a href="#semanas">Semanas</a>
+          <a href="#evaluacion">Evaluación</a>
+        </div>
+      </nav>
+
+      <div class="container hero-grid">
+        <div>
+          <p class="eyebrow">PLAN FORMATIVO · 8 SEMANAS · 40 HORAS</p>
+          <h1>De interfaces Flutter a una app que conversa con una API.</h1>
+          <p class="hero-copy">Una ruta práctica para estudiantes de quinto nivel: construye <strong>TaskFlow</strong>, una aplicación Android de gestión de tareas con operaciones CRUD, arquitectura MVVM y consumo de servicios REST.</p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#semanas">Explorar el plan</a>
+            <a class="button button-ghost" href="#proyecto">Ver proyecto final</a>
+          </div>
+        </div>
+        <aside class="hero-card" aria-label="Resumen del curso">
+          <p class="code-label">// resultado esperado</p>
+          <div class="terminal-line"><span>✓</span> App Android funcional</div>
+          <div class="terminal-line"><span>✓</span> API REST integrada</div>
+          <div class="terminal-line"><span>✓</span> CRUD completo</div>
+          <div class="terminal-line"><span>✓</span> APK y repositorio</div>
+          <div class="hero-card-footer"><span>16 sesiones</span><span>·</span><span>2 encuentros / semana</span></div>
+        </aside>
+      </div>
+    </header>
+
+    <main id="contenido">
+      <section class="section container" id="curso">
+        <div class="section-heading">
+          <p class="eyebrow">PROPÓSITO FORMATIVO</p>
+          <h2>Aprender construyendo, con una dificultad que crece de forma controlada.</h2>
+          <p>El curso parte de fundamentos de Dart y Flutter. En cada clase se incorpora una pieza al mismo producto: una app de tareas. Así, cada concepto tiene un lugar claro en un proyecto real.</p>
+        </div>
+        <div class="stats-grid" aria-label="Datos del curso">
+          <article><strong>8</strong><span>semanas de trabajo</span></article>
+          <article><strong>16</strong><span>sesiones presenciales</span></article>
+          <article><strong>40 h</strong><span>de aprendizaje guiado</span></article>
+          <article><strong>1</strong><span>proyecto integrador</span></article>
+        </div>
+        <div class="two-column emphasis-panel">
+          <div>
+            <h3>¿Qué podrás hacer al terminar?</h3>
+            <ul class="check-list">
+              <li>Diseñar interfaces Android responsivas con Flutter.</li>
+              <li>Organizar código por funcionalidades y responsabilidades.</li>
+              <li>Consumir, mostrar y modificar datos de una API REST.</li>
+              <li>Manejar carga, errores, formularios y navegación.</li>
+              <li>Probar funciones críticas y generar un APK instalable.</li>
+            </ul>
+          </div>
+          <div class="concept-card">
+            <p class="code-label">IDEA CENTRAL</p>
+            <p>Una aplicación móvil no es solo una colección de pantallas. Es un sistema que recibe eventos del usuario, administra estado y se comunica con datos externos.</p>
+            <p class="muted">Durante el curso se conecta ese flujo completo: interfaz → lógica → API → interfaz.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section-tint" id="proyecto">
+        <div class="container">
+          <div class="section-heading narrow">
+            <p class="eyebrow">PROYECTO INTEGRADOR</p>
+            <h2>TaskFlow: una aplicación de gestión de tareas.</h2>
+            <p>TaskFlow es el caso guía. Su alcance es pequeño, pero suficiente para practicar las decisiones técnicas más importantes de una app conectada a servicios web.</p>
+          </div>
+          <div class="feature-grid">
+            <article class="feature-card"><span class="feature-number">01</span><h3>Consultar</h3><p>Mostrar una lista de tareas desde una API, con estados de carga, contenido vacío y error.</p></article>
+            <article class="feature-card"><span class="feature-number">02</span><h3>Gestionar</h3><p>Crear, editar y eliminar tareas usando formularios, validaciones y solicitudes HTTP.</p></article>
+            <article class="feature-card"><span class="feature-number">03</span><h3>Comunicar</h3><p>Informar al usuario qué ocurre: progreso, confirmaciones, errores recuperables y resultados de búsqueda.</p></article>
+            <article class="feature-card"><span class="feature-number">04</span><h3>Entregar</h3><p>Documentar el proyecto, probar componentes esenciales y construir un APK listo para instalar.</p></article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section container" id="arquitectura">
+        <div class="section-heading">
+          <p class="eyebrow">ARQUITECTURA DEL PROYECTO</p>
+          <h2>MVVM + Repository: ordenar para poder crecer.</h2>
+          <p>La arquitectura define responsabilidades. Evita que los widgets hagan peticiones HTTP directamente y facilita localizar, probar y cambiar el código.</p>
+        </div>
+        <div class="architecture">
+          <div class="arch-layer"><span class="arch-tag">UI</span><div><h3>View</h3><p>Pantallas y widgets. Muestran información y capturan toques, texto o acciones del usuario.</p></div></div>
+          <div class="arch-arrow" aria-hidden="true">↕</div>
+          <div class="arch-layer"><span class="arch-tag">STATE</span><div><h3>ViewModel</h3><p>Convierte los datos en estado de interfaz: carga, lista de tareas, error y acciones disponibles.</p></div></div>
+          <div class="arch-arrow" aria-hidden="true">↕</div>
+          <div class="arch-layer"><span class="arch-tag">DATA</span><div><h3>Repository</h3><p>Es la fuente de verdad de las tareas. Decide cómo obtener, transformar o actualizar datos.</p></div></div>
+          <div class="arch-arrow" aria-hidden="true">↕</div>
+          <div class="arch-layer"><span class="arch-tag">HTTP</span><div><h3>API Service</h3><p>Aísla los detalles técnicos de la red: URL, método HTTP, encabezados y conversión de respuestas.</p></div></div>
+        </div>
+        <p class="architecture-note"><strong>Flujo de datos:</strong> una persona toca “Guardar” → la vista invoca una acción del ViewModel → el repositorio usa el servicio de API → el ViewModel actualiza el estado → la vista se vuelve a dibujar.</p>
+      </section>
+
+      <section class="section section-tint" id="herramientas">
+        <div class="container">
+          <div class="section-heading">
+            <p class="eyebrow">CAJA DE HERRAMIENTAS</p>
+            <h2>Pocas herramientas, usadas con intención.</h2>
+            <p>La selección evita sobrecargar el curso con bibliotecas que resuelven el mismo problema. Cada paquete se presenta cuando el proyecto lo necesita.</p>
+          </div>
+          <div class="tool-table" role="table" aria-label="Herramientas del curso">
+            <div class="tool-row tool-head" role="row"><span>Necesidad</span><span>Herramienta</span><span>Uso en TaskFlow</span></div>
+            <div class="tool-row" role="row"><span>Estado + DI</span><span><code>provider</code> + <code>ChangeNotifier</code></span><span>El ViewModel publica estados y Provider entrega ApiService, Repository y ViewModel sin crear dependencias globales.</span></div>
+            <div class="tool-row" role="row"><span>Conexión REST</span><span><code>dio</code></span><span>Cliente HTTP centralizado con URL base, timeouts, cabeceras e interceptores para token y diagnóstico.</span></div>
+            <div class="tool-row" role="row"><span>Navegación</span><span><code>go_router</code></span><span>Declara rutas para listado, detalle, formulario y configuración; permite enviar parámetros de forma explícita.</span></div>
+            <div class="tool-row" role="row"><span>Preferencias</span><span><code>shared_preferences</code></span><span>Guarda datos no críticos: tema, nombre visible y último filtro. Se usará su API asíncrona moderna.</span></div>
+            <div class="tool-row" role="row"><span>Tokens reales</span><span><code>flutter_secure_storage</code></span><span>Solo si la API usa autenticación. Un token nunca se guarda en preferencias comunes.</span></div>
+            <div class="tool-row" role="row"><span>Calidad</span><span><code>flutter_lints</code> + <code>mocktail</code></span><span>El primero detecta problemas de estilo y el segundo permite simular repositorios en pruebas sin llamar a internet.</span></div>
+            <div class="tool-row" role="row"><span>Fechas</span><span><code>intl</code></span><span>Da formato legible a fechas y horas en tareas, respetando idioma y configuración regional.</span></div>
+            <div class="tool-row" role="row"><span>Versionado</span><span><code>Git</code> + <code>GitHub</code></span><span>Registra únicamente el trabajo autónomo de cada sesión y publica el avance en el repositorio remoto.</span></div>
+          </div>
+          <div class="tool-note"><strong>Decisión didáctica:</strong> no se incorporará Bloc, Riverpod, GetX, <code>get_it</code>, Retrofit o Firebase en el núcleo del curso. Son herramientas válidas, pero introducir varias soluciones al mismo tiempo reduciría el tiempo disponible para comprender el flujo de datos, la API y las pruebas.</div>
+          <div class="git-policy"><p class="eyebrow">CONTROL DE VERSIONES · REQUISITO TRANSVERSAL</p><h3>Al finalizar el trabajo autónomo de cada sesión</h3><p>El estudiante prueba su avance, realiza un commit con el mensaje sugerido en la ruta del proyecto y lo publica en GitHub. El ejemplo guiado se utiliza para aprender; la evidencia que se versiona es la adaptación autónoma a TaskFlow.</p><pre><code>git status&#10;git add .&#10;git commit -m "feat: describir avance autónomo"&#10;git push origin main</code></pre><p class="muted">Antes del primer push, cada estudiante debe crear o tener asignado un repositorio GitHub y configurarlo como remoto <code>origin</code>.</p></div>
+        </div>
+      </section>
+
+      <section class="section section-dark" id="semanas">
+        <div class="container">
+          <div class="section-heading light">
+            <p class="eyebrow">RUTA DE APRENDIZAJE</p>
+            <h2>Semana por semana, sesión por sesión.</h2>
+            <p>Cada sesión se organiza en tres momentos: inicio, desarrollo y cierre. Abre una semana para estudiar su secuencia, conceptos y prácticas incrementales.</p>
+          </div>
+          <div class="week-tabs" role="tablist" aria-label="Seleccionar semana" id="week-tabs"></div>
+          <div id="week-content" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <section class="section container" id="metodologia">
+        <div class="section-heading">
+          <p class="eyebrow">METODOLOGÍA</p>
+          <h2>Una clase con tres momentos y dos tipos de práctica.</h2>
+        </div>
+        <div class="method-grid">
+          <article><span>1</span><h3>Inicio</h3><p>Activa conocimientos previos, sitúa el problema y presenta el objetivo de aprendizaje de la sesión.</p></article>
+          <article><span>2</span><h3>Desarrollo</h3><p>Combina explicación conceptual, ejemplo guiado por el docente y práctica autónoma acompañada.</p></article>
+          <article><span>3</span><h3>Cierre</h3><p>Verifica resultados, corrige dificultades, registra evidencia y enlaza con la siguiente sesión.</p></article>
+        </div>
+        <div class="callout"><strong>Ejemplo guiado</strong> significa que docente y estudiantes construyen una solución en conjunto. <strong>Práctica autónoma incremental</strong> es el reto que cada estudiante implementa durante la clase sobre su propia app, aplicando lo recién aprendido.</div>
+      </section>
+
+      <section class="section section-tint" id="evaluacion">
+        <div class="container">
+          <div class="section-heading narrow">
+            <p class="eyebrow">EVALUACIÓN Y ENTREGA</p>
+            <h2>La calidad se evidencia en un producto que funciona y se puede explicar.</h2>
+          </div>
+          <div class="assessment-grid">
+            <div class="rubric"><span>20%</span><div><h3>Prácticas semanales</h3><p>Avances incrementales, participación técnica y evidencias en el repositorio.</p></div></div>
+            <div class="rubric"><span>20%</span><div><h3>Arquitectura y código</h3><p>Separación de responsabilidades, legibilidad, organización y convenciones.</p></div></div>
+            <div class="rubric"><span>30%</span><div><h3>Integración con API</h3><p>Operaciones CRUD, datos reales, estados asíncronos y tratamiento de errores.</p></div></div>
+            <div class="rubric"><span>20%</span><div><h3>Funcionalidad y UX</h3><p>Navegación, formularios, validaciones y experiencia comprensible para usuario.</p></div></div>
+            <div class="rubric"><span>10%</span><div><h3>Pruebas y entrega</h3><p>Pruebas mínimas, README, APK instalable y demostración final.</p></div></div>
+          </div>
+          <div class="delivery"><h3>Entrega final</h3><p>Repositorio Git, archivo APK, README con instrucciones y arquitectura, capturas de pantalla, pruebas automatizadas básicas y una demostración breve del flujo conectado a API.</p></div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="container footer-content"><span>Curso Flutter · Plan formativo 2026</span><a href="#inicio">Volver arriba ↑</a></div>
+    </footer>
+    <script src="app.js"></script>
+    <script src="syntax.js"></script>
+  </body>
+</html>

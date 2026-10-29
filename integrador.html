@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Ruta incremental del proyecto integrador TaskFlow para cada sesión del curso Flutter." />
+    <title>Proyecto integrador | Curso Flutter</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="integrator-page">
+    <a class="skip-link" href="#ruta">Ir a la ruta incremental</a>
+    <header class="project-hero">
+      <nav class="container nav" aria-label="Navegación principal">
+        <a class="brand" href="index.html"><span class="brand-mark">F</span><span>Curso Flutter</span></a>
+        <div class="nav-links"><a href="index.html">Plan del curso</a><a href="codelabs.html">Codelabs</a><a href="especificaciones.html">Specs</a><a href="#ruta">Ruta de proyecto</a></div>
+      </nav>
+      <div class="container project-hero-content">
+        <p class="eyebrow">TRABAJO INTEGRADOR · 16 AVANCES</p>
+        <h1>Una sesión, una mejora observable en la app final.</h1>
+        <p>El trabajo autónomo no es un ejercicio aislado. Después de cada clase, el estudiante aplica el concepto revisado a <strong>TaskFlow</strong> y conserva una evidencia concreta en su repositorio.</p>
+      </div>
+    </header>
+    <main id="ruta" class="container project-main">
+      <section class="project-principle">
+        <div><p class="eyebrow">CÓMO USAR ESTA RUTA</p><h2>El ciclo de cada sesión</h2></div>
+        <ol class="project-cycle"><li><strong>Comprender:</strong> seguir el ejemplo del docente.</li><li><strong>Transferir:</strong> aplicar el mismo concepto en TaskFlow.</li><li><strong>Comprobar:</strong> ejecutar, probar y guardar evidencia.</li><li><strong>Versionar:</strong> hacer commit y push del trabajo autónomo.</li></ol>
+      </section>
+      <section class="project-summary"><strong>Producto final:</strong> una aplicación Android para gestionar tareas, organizada con MVVM, conectada a una API REST, con operaciones CRUD, manejo de errores, pruebas básicas y un APK instalable.</section>
+      <section class="project-git-rule"><p class="eyebrow">REGLA DE ENTREGA POR SESIÓN</p><h2>El repositorio se actualiza con el trabajo autónomo, no con la demostración guiada.</h2><p>Cuando el estudiante complete el avance indicado en cada tarjeta, debe verificar que funciona, ejecutar el commit propuesto y hacer <code>git push origin main</code>. El historial de GitHub será la evidencia del progreso continuo del proyecto integrador.</p><pre><code>git status&#10;git add .&#10;git commit -m "mensaje propuesto para la sesión"&#10;git push origin main</code></pre></section>
+
+      <section class="project-week"><div class="week-label">SEMANA 1</div><div><h2>Base de la aplicación</h2><div class="increment-grid">
+        <article><span>Sesión 1 · Fundamentos y layouts básicos</span><h3>Construir la bienvenida de TaskFlow</h3><p><strong>Aplicar:</strong> creación de proyecto, variables Dart, <code>Scaffold</code>, <code>Column</code>, <code>Row</code>, <code>Card</code> y <code>Text</code>.</p><p><strong>Avance:</strong> crear una pantalla inicial con el nombre de la app, saludo personalizado, mensaje motivacional y tarjeta de “tareas pendientes”. Usar una columna para la pantalla y una fila para el icono y contador.</p><p class="evidence"><strong>Evidencia:</strong> captura de pantalla y commit <code>feat: crear pantalla de bienvenida</code>.</p></article>
+        <article><span>Sesión 2 · Estado local</span><h3>Hacer interactivo el panel</h3><p><strong>Aplicar:</strong> <code>StatefulWidget</code>, variables de estado, <code>setState()</code> y botones.</p><p><strong>Avance:</strong> convertir la bienvenida en un panel que permita agregar y completar tareas. El número de pendientes debe cambiar y el botón de completar debe deshabilitarse al llegar a cero.</p><p class="evidence"><strong>Evidencia:</strong> video corto o GIF del contador y commit <code>feat: agregar estado de tareas</code>.</p></article>
+      </div></div></section>
+
+      <section class="project-week"><div class="week-label">SEMANA 2</div><div><h2>Interfaz navegable</h2><div class="increment-grid">
+        <article><span>Sesión 3 · Layouts y listas</span><h3>Mostrar tareas locales</h3><p><strong>Aplicar:</strong> modelos simples, listas, <code>ListView.builder</code>, tarjetas y widgets reutilizables.</p><p><strong>Avance:</strong> crear una lista local de al menos cinco tareas y un widget <code>TaskCard</code>. Cada tarjeta muestra título, prioridad, estado e icono.</p><p class="evidence"><strong>Evidencia:</strong> listado desplazable y commit <code>feat: mostrar listado local de tareas</code>.</p></article>
+        <article><span>Sesión 4 · Navegación</span><h3>Agregar el detalle de una tarea</h3><p><strong>Aplicar:</strong> rutas con <code>go_router</code> y parámetros de navegación.</p><p><strong>Avance:</strong> al tocar una tarjeta, navegar a una pantalla de detalle que reciba el id o la tarea seleccionada y presente su información completa.</p><p class="evidence"><strong>Evidencia:</strong> flujo lista → detalle → regresar y commit <code>feat: agregar detalle de tarea</code>.</p></article>
+      </div></div></section>
+
+      <section class="project-week"><div class="week-label">SEMANA 3</div><div><h2>Diseño y organización</h2><div class="increment-grid">
+        <article><span>Sesión 5 · Especificación y modelo</span><h3>Definir el alcance de TaskFlow</h3><p><strong>Aplicar:</strong> historias de usuario, requisitos y modelado de datos.</p><p><strong>Avance:</strong> definir la clase <code>Task</code> con id, título, descripción, prioridad y estado. Documentar cinco historias de usuario y el flujo de pantallas en el README.</p><p class="evidence"><strong>Evidencia:</strong> README inicial y commit <code>docs: definir alcance y modelo de TaskFlow</code>.</p></article>
+        <article><span>Sesión 6 · MVVM</span><h3>Separar responsabilidades</h3><p><strong>Aplicar:</strong> carpetas por funcionalidad, View, ViewModel, Repository y Service.</p><p><strong>Avance:</strong> mover el modelo y las pantallas a <code>features/tasks</code>; crear el contrato <code>TaskRepository</code> y <code>TasksViewModel</code> que, por ahora, entregue datos locales.</p><p class="evidence"><strong>Evidencia:</strong> estructura de carpetas compilando y commit <code>refactor: organizar feature tasks con MVVM</code>.</p></article>
+      </div></div></section>
+
+      <section class="project-week"><div class="week-label">SEMANA 4</div><div><h2>Datos remotos</h2><div class="increment-grid">
+        <article><span>Sesión 7 · HTTP y JSON</span><h3>Consultar tareas desde API</h3><p><strong>Aplicar:</strong> <code>Dio</code>, <code>Future</code>, <code>async/await</code>, JSON y <code>fromJson()</code>.</p><p><strong>Avance:</strong> crear <code>TaskApiService</code> con una solicitud GET al endpoint elegido; transformar la respuesta en una lista de <code>Task</code>.</p><p class="evidence"><strong>Evidencia:</strong> respuesta visible en consola o lista temporal y commit <code>feat: consultar tareas desde API</code>.</p></article>
+        <article><span>Sesión 8 · Estado asíncrono</span><h3>Conectar API con la interfaz</h3><p><strong>Aplicar:</strong> Repository, Provider, ChangeNotifier y estados carga/éxito/error/vacío.</p><p><strong>Avance:</strong> usar <code>TaskRepository</code> desde <code>TasksViewModel</code> y sustituir el listado local por datos remotos. Diseñar una vista para cada estado posible.</p><p class="evidence"><strong>Evidencia:</strong> botón Reintentar funcional y commit <code>feat: integrar estado remoto de tareas</code>.</p></article>
+      </div></div></section>
+
+      <section class="project-week"><div class="week-label">SEMANA 5</div><div><h2>Gestión de datos</h2><div class="increment-grid">
+        <article><span>Sesión 9 · Formularios</span><h3>Crear y editar desde una pantalla</h3><p><strong>Aplicar:</strong> <code>Form</code>, <code>TextFormField</code>, validaciones y selectores.</p><p><strong>Avance:</strong> agregar una pantalla de formulario reutilizable para registrar o editar una tarea. Validar título obligatorio y prioridad.</p><p class="evidence"><strong>Evidencia:</strong> formulario con mensajes claros y commit <code>feat: agregar formulario de tareas</code>.</p></article>
+        <article><span>Sesión 10 · CRUD remoto</span><h3>Modificar los datos de la API</h3><p><strong>Aplicar:</strong> POST, PATCH/PUT, DELETE, <code>toJson()</code>, SnackBar y confirmaciones.</p><p><strong>Avance:</strong> conectar el formulario a crear y editar; añadir eliminación desde detalle con diálogo de confirmación; refrescar la lista después de cada operación.</p><p class="evidence"><strong>Evidencia:</strong> recorrido CRUD completo y commit <code>feat: completar CRUD de tareas</code>.</p></article>
+      </div></div></section>
+
+      <section class="project-week"><div class="week-label">SEMANA 6</div><div><h2>Resiliencia y calidad</h2><div class="increment-grid">
+        <article><span>Sesión 11 · Errores</span><h3>Diseñar fallos recuperables</h3><p><strong>Aplicar:</strong> excepciones, <code>try/catch</code>, timeouts, mensajes y reintentos.</p><p><strong>Avance:</strong> mapear al menos tres errores: sin conexión, error de servidor y validación fallida. Mostrar acciones comprensibles y bloquear el envío duplicado.</p><p class="evidence"><strong>Evidencia:</strong> capturas de estados de error y commit <code>feat: manejar errores de red</code>.</p></article>
+        <article><span>Sesión 12 · Pruebas</span><h3>Proteger comportamientos críticos</h3><p><strong>Aplicar:</strong> <code>flutter_test</code>, fakes o Mocktail y pruebas de widget.</p><p><strong>Avance:</strong> escribir una prueba de <code>Task.fromJson</code>, una del ViewModel/Repository, una de validación y una que compruebe el estado de carga o error.</p><p class="evidence"><strong>Evidencia:</strong> salida exitosa de <code>flutter test</code> y commit <code>test: cubrir flujo esencial de tareas</code>.</p></article>
+      </div></div></section>
+
+      <section class="project-week"><div class="week-label">SEMANA 7</div><div><h2>Utilidad y experiencia</h2><div class="increment-grid">
+        <article><span>Sesión 13 · Persistencia</span><h3>Conservar una preferencia útil</h3><p><strong>Aplicar:</strong> <code>shared_preferences</code> o almacenamiento seguro si existe autenticación.</p><p><strong>Avance:</strong> persistir el tema, nombre de usuario o último filtro. Si el proyecto usa login real, guardar el token con <code>flutter_secure_storage</code>.</p><p class="evidence"><strong>Evidencia:</strong> cerrar y volver a abrir la app preservando la opción y commit <code>feat: persistir preferencias de usuario</code>.</p></article>
+        <article><span>Sesión 14 · Búsqueda y accesibilidad</span><h3>Encontrar y comprender tareas</h3><p><strong>Aplicar:</strong> filtros, orden, estado “sin resultados” y criterios de accesibilidad.</p><p><strong>Avance:</strong> añadir búsqueda por título, filtro por estado o prioridad, limpiar filtros y revisar contraste, texto y objetivos táctiles.</p><p class="evidence"><strong>Evidencia:</strong> búsqueda demostrable y commit <code>feat: agregar búsqueda y filtros</code>.</p></article>
+      </div></div></section>
+
+      <section class="project-week"><div class="week-label">SEMANA 8</div><div><h2>Entrega profesional</h2><div class="increment-grid">
+        <article><span>Sesión 15 · Refactor y documentación</span><h3>Preparar el repositorio</h3><p><strong>Aplicar:</strong> formato, análisis estático, README y documentación técnica.</p><p><strong>Avance:</strong> ejecutar <code>dart format .</code>, <code>flutter analyze</code> y pruebas; documentar instalación, arquitectura, API, capturas, funcionalidades y límites conocidos.</p><p class="evidence"><strong>Evidencia:</strong> README completo y commit <code>docs: preparar entrega final</code>.</p></article>
+        <article><span>Sesión 16 · APK y demo</span><h3>Entregar y defender el proyecto</h3><p><strong>Aplicar:</strong> compilación release, pruebas de aceptación y comunicación técnica.</p><p><strong>Avance:</strong> generar APK, instalarlo, recorrer los flujos críticos y presentar problema, arquitectura, API y demostración de CRUD.</p><p class="evidence"><strong>Evidencia:</strong> APK, enlace de repositorio y commit <code>build: generar apk de entrega</code>.</p></article>
+      </div></div></section>
+    </main>
+    <footer><div class="container footer-content"><span>Curso Flutter · Ruta del proyecto integrador</span><a href="#ruta">Volver arriba ↑</a></div></footer>
+    <script src="syntax.js"></script>
+  </body>
+</html>
