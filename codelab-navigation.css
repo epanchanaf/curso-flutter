@@ -1,0 +1,168 @@
+.codelab-navigator {
+  padding: 42px 0;
+  background: #f3f2ff;
+  border-bottom: 1px solid #dedcf8;
+}
+
+.navigator-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 36px;
+  margin-bottom: 22px;
+}
+
+.navigator-heading h2 {
+  margin: 0;
+  font-size: clamp(1.65rem, 3vw, 2.4rem);
+  letter-spacing: -0.05em;
+}
+
+.navigator-heading > p {
+  max-width: 495px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.navigator-panel {
+  padding: 22px;
+  border: 1px solid #dad7ff;
+  border-radius: 13px;
+  background: #fff;
+  box-shadow: 0 12px 30px rgba(52, 43, 125, 0.06);
+}
+
+.navigator-label {
+  margin: 0 0 10px;
+  font: 500 0.7rem "DM Mono", monospace;
+  letter-spacing: 0.1em;
+  color: #4d459e;
+}
+
+.codelab-week-tabs {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 7px;
+  margin-bottom: 22px;
+}
+
+.codelab-week-tabs button {
+  border: 1px solid #d9d7ef;
+  border-radius: 7px;
+  padding: 9px 5px;
+  background: #fafaff;
+  color: #4f5872;
+  font: 700 0.75rem Manrope, Arial, sans-serif;
+  cursor: pointer;
+}
+
+.codelab-week-tabs button:hover,
+.codelab-week-tabs button.active {
+  border-color: var(--purple);
+  background: var(--purple);
+  color: #fff;
+}
+
+.codelab-session-links {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.codelab-session-link {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 116px 1fr auto;
+  align-items: center;
+  gap: 13px;
+  padding: 14px 15px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  font: 600 0.84rem Manrope, Arial, sans-serif;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.codelab-session-link:hover {
+  border-color: #8d86dc;
+  background: #faf9ff;
+}
+
+.codelab-session-link span:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.codelab-session-link b {
+  color: var(--purple);
+  font-size: 0.78rem;
+}
+
+.codelab-session-link small {
+  color: var(--muted);
+  font: 500 0.68rem "DM Mono", monospace;
+}
+
+.codelab-session-link i {
+  color: #5a50aa;
+  font: 500 0.67rem "DM Mono", monospace;
+  font-style: normal;
+  white-space: nowrap;
+}
+
+.navigator-status {
+  margin: 17px 1px 0;
+  color: #535d77;
+  font-size: 0.82rem;
+}
+
+.codelab-upcoming {
+  margin-top: 15px;
+  padding: 19px 22px;
+  border-radius: 10px;
+  background: #17203a;
+  color: #fff;
+}
+
+.codelab-upcoming .eyebrow {
+  margin-bottom: 7px;
+  color: var(--mint);
+}
+
+.codelab-upcoming h3 {
+  margin: 0;
+  font-size: 1.08rem;
+}
+
+.codelab-upcoming p:not(.eyebrow) {
+  margin: 6px 0 12px;
+  color: #d7deef;
+  font-size: 0.88rem;
+}
+
+.codelab-upcoming a {
+  color: var(--mint);
+  font-weight: 800;
+  font-size: 0.84rem;
+}
+
+@media (max-width: 760px) {
+  .navigator-heading { display: block; }
+  .navigator-heading > p { margin-top: 10px; }
+  .codelab-week-tabs { grid-template-columns: repeat(4, 1fr); }
+  .codelab-session-links { grid-template-columns: 1fr; }
+  .codelab-session-link { grid-template-columns: 92px 1fr; }
+  .codelab-session-link i { grid-column: 2; }
+  .navigator-panel { padding: 16px; }
+}
+
+@media (max-width: 420px) {
+  .codelab-week-tabs { grid-template-columns: repeat(2, 1fr); }
+  .codelab-session-link { grid-template-columns: 1fr; }
+  .codelab-session-link i { grid-column: auto; }
+}
