@@ -53,7 +53,9 @@ function addCodeControls(scope) {
     const source = block.textContent;
     const pre = block.parentElement;
     const button = document.createElement('button');
-    pre.dataset.language = pre.dataset.language || 'dart';
+    if (!pre.dataset.language) {
+      pre.dataset.language = /^(?:flutter|dart|git|cd|code)\b/m.test(source) ? 'shell' : 'dart';
+    }
     button.type = 'button';
     button.className = 'code-copy';
     button.textContent = 'Copiar';
@@ -101,6 +103,33 @@ if (!currentSession || !pageContent) {
   pageContent.className = 'codelab-layout session-codelab-layout';
   pageContent.parentElement.classList.add('session-codelab-main');
 
+  if (number === 1) {
+    pageContent.innerHTML = `
+      ${sidebarMarkup()}
+      <div class="codelab-content" id="detailed-codelab">
+        <p class="session-objective">Cargando el codelab detallado de la sesión 1…</p>
+      </div>`;
+
+    fetch('codelabs.html')
+      .then((response) => {
+        if (!response.ok) throw new Error('No se pudo leer el codelab original.');
+        return response.text();
+      })
+      .then((markup) => {
+        const documentSource = new DOMParser().parseFromString(markup, 'text/html');
+        const detailedCodelab = documentSource.querySelector('#codelab-1');
+        if (!detailedCodelab) throw new Error('No se encontró el contenido de la sesión 1.');
+
+        detailedCodelab.removeAttribute('hidden');
+        const destination = pageContent.querySelector('#detailed-codelab');
+        destination.replaceChildren(detailedCodelab);
+        addCodeControls(destination);
+      })
+      .catch(() => {
+        pageContent.querySelector('#detailed-codelab').innerHTML =
+          '<p class="session-objective">No se pudo cargar el codelab detallado. Abre <a href="codelabs.html#codelab-1">la sesión 1</a> desde el índice.</p>';
+      });
+  } else {
   pageContent.innerHTML = `
     ${sidebarMarkup()}
     <div class="codelab-content">
@@ -119,4 +148,5 @@ if (!currentSession || !pageContent) {
       </section>
     </div>`;
   addCodeControls(pageContent);
+  }
 }
