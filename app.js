@@ -167,48 +167,28 @@ const sourceWeeks = [
     sessions: [
       {
         number: 15, hours: "3 horas", title: "Refactorización, documentación y preparación de entrega", goal: "Convertir el avance de clase en un proyecto que otra persona pueda ejecutar y entender.",
-        start: ["Presentación de la lista de verificación final y de la rúbrica.", "Priorización: primero los errores que impiden usar la app, después mejoras visuales."],
-        development: ["Refactorizar no implica agregar características: mejora la estructura sin modificar la conducta observada.", "Convenciones de nombres, archivos pequeños y responsabilidades claras disminuyen el costo de mantenimiento.", "<code>dart format</code> mantiene formato consistente y <code>flutter analyze</code> ayuda a detectar problemas estáticos.", "Un README debe explicar propósito, requisitos, instalación, arquitectura, API, pruebas y capturas.", "La documentación técnica no es un adorno: permite evaluar y continuar el proyecto."],
-        close: ["Revisión individual de pendientes críticos.", "Validar repositorio, README, pruebas y ejecución de análisis."],
+        start: ["<strong>0–25 min:</strong> presentar la lista de verificación final y la rúbrica.", "<strong>0–25 min:</strong> priorizar: primero los errores que impiden usar la app; después, las mejoras visuales."],
+        development: ["<strong>25–150 min:</strong> refactorizar no implica agregar características: mejora la estructura sin modificar la conducta observada.", "<strong>25–150 min:</strong> aplicar convenciones de nombres, archivos pequeños y responsabilidades claras para reducir el costo de mantenimiento.", "<strong>25–150 min:</strong> ejecutar <code>dart format</code> para mantener formato consistente y <code>flutter analyze</code> para detectar problemas estáticos.", "<strong>25–150 min:</strong> documentar en el README propósito, requisitos, instalación, arquitectura, API, pruebas y capturas.", "<strong>25–150 min:</strong> comprobar que la documentación permite evaluar y continuar el proyecto sin pedir explicaciones adicionales."],
+        close: ["<strong>150–180 min:</strong> revisar los pendientes críticos de forma individual.", "<strong>150–180 min:</strong> validar repositorio, README, pruebas y análisis; guardar la evidencia y preparar el commit."],
         guided: "Transformar un README mínimo en uno útil que incluya instalación, arquitectura y uso de API.",
-        autonomous: "Completar paquete de entrega: código ordenado, README, capturas, diagrama de arquitectura, funcionalidades, limitaciones conocidas y ejecución correcta de pruebas y análisis estático."
+        autonomous: "<strong>Aplicar:</strong> formato, análisis estático, pruebas y documentación técnica. <strong>Avance:</strong> completar el paquete de entrega con código ordenado, README, capturas, diagrama de arquitectura, funcionalidades y limitaciones conocidas. <strong>Evidencia:</strong> salida correcta de <code>flutter analyze</code> y <code>flutter test</code>, más el README visible en el repositorio. <strong>Versionado:</strong> usar <code>docs: preparar documentación de entrega</code> y ejecutar <code>git push origin main</code>."
       },
       {
         number: 16, hours: "2 horas", title: "Generación de APK, demostración y evaluación final", goal: "Construir el artefacto de instalación y comunicar las decisiones del proyecto.",
-        start: ["Explicación del flujo de compilación de lanzamiento y del formato de demostración técnica.", "Organización de turnos y lista de comprobación para presentación."],
-        development: ["Un APK es el paquete instalable para Android. La generación de release convierte el proyecto en un artefacto que puede probarse fuera del entorno de desarrollo.", "Prueba de flujos críticos: listar, ver detalle, crear, editar, eliminar y responder ante error.", "Una buena demo presenta problema, solución, arquitectura, API, demostración funcional y aprendizaje principal.", "La evaluación considera proceso y producto: no solo que la pantalla se vea bien, sino que las decisiones puedan justificarse."],
-        close: ["Retroalimentación final orientada a próximos pasos: base de datos local, Firebase, notificaciones y publicación.", "Entrega formal de repositorio, APK y evidencias."],
+        start: ["<strong>0–15 min:</strong> explicar el flujo de compilación de lanzamiento y el formato de demostración técnica.", "<strong>0–15 min:</strong> organizar turnos y revisar la lista de comprobación de la presentación."],
+        development: ["<strong>15–90 min:</strong> identificar un APK como el paquete instalable para Android y generar una compilación release que se pueda probar fuera del entorno de desarrollo.", "<strong>15–90 min:</strong> recorrer los flujos críticos: listar, ver detalle, crear, editar, eliminar y responder ante un error.", "<strong>15–90 min:</strong> estructurar una demo con problema, solución, arquitectura, API, demostración funcional y aprendizaje principal.", "<strong>15–90 min:</strong> justificar las decisiones del proyecto: la evaluación considera proceso y producto, no solo el aspecto de la pantalla."],
+        close: ["<strong>90–120 min:</strong> recibir retroalimentación y reconocer próximos pasos: base de datos local, Firebase, notificaciones y publicación.", "<strong>90–120 min:</strong> entregar formalmente repositorio, APK y evidencias."],
         guided: "Generar un APK de lanzamiento y localizar el archivo resultante para instalarlo en un dispositivo o emulador.",
-        autonomous: "Generar e instalar el APK, recorrer la lista de verificación funcional y presentar la app en cinco minutos demostrando al menos una operación conectada a la API."
+        autonomous: "<strong>Aplicar:</strong> compilación release, pruebas de aceptación y comunicación técnica. <strong>Avance:</strong> generar e instalar el APK, recorrer la lista de verificación funcional y presentar la app en cinco minutos con al menos una operación conectada a la API. <strong>Evidencia:</strong> archivo APK instalable, enlace del repositorio y video o registro de la demostración. <strong>Versionado:</strong> usar <code>build: preparar entrega final</code> y ejecutar <code>git push origin main</code>."
       }
     ]
   }
 ];
 
-function mergeSessions(number, hours, title, first, second) {
-  const continueSentence = (text) => text.charAt(0).toLowerCase() + text.slice(1);
-  return {
-    number,
-    hours,
-    title,
-    goal: `${first.goal} Además, ${continueSentence(second.goal)}`,
-    start: [...first.start, ...second.start],
-    development: [...first.development, ...second.development],
-    close: [...first.close, ...second.close],
-    guided: `${first.guided} Después, ${continueSentence(second.guided)}`,
-    autonomous: `${first.autonomous} Después, ${continueSentence(second.autonomous)}`
-  };
-}
-
-const weeks = [
-  { number: 1, title: "Fundamentos de Flutter y Dart", outcome: "Entorno preparado y primera pantalla funcional de TaskFlow.", sessions: sourceWeeks[0].sessions },
-  { number: 2, title: "Layouts, listas y navegación", outcome: "App con listado estático, pantalla de detalle y navegación entre rutas.", sessions: sourceWeeks[1].sessions },
-  { number: 3, title: "Diseño técnico y arquitectura MVVM", outcome: "Proyecto definido, modelado y estructurado por funcionalidades.", sessions: sourceWeeks[2].sessions },
-  { number: 4, title: "Consumo de API REST", outcome: "Tareas remotas representadas en pantalla con estados asíncronos claros.", sessions: sourceWeeks[3].sessions },
-  { number: 5, title: "Formularios, CRUD y resiliencia", outcome: "La app crea, edita y elimina información con validación y manejo de fallos recuperables.", sessions: [mergeSessions(9, "3 horas", "Formularios, validación y operaciones CRUD", sourceWeeks[4].sessions[0], sourceWeeks[4].sessions[1]), { ...sourceWeeks[5].sessions[0], number: 10, hours: "2 horas" }] },
-  { number: 6, title: "Pruebas y persistencia", outcome: "Comportamientos críticos probados y preferencias útiles conservadas entre aperturas.", sessions: [{ ...sourceWeeks[5].sessions[1], number: 11, hours: "3 horas" }, { ...sourceWeeks[6].sessions[0], number: 12, hours: "2 horas" }] },
-  { number: 7, title: "Experiencia, calidad y entrega", outcome: "App más fácil de usar, validada, documentada y entregada como APK instalable.", sessions: [{ ...sourceWeeks[6].sessions[1], number: 13, hours: "3 horas" }, mergeSessions(14, "2 horas", "Calidad, APK, demostración y evaluación final", sourceWeeks[7].sessions[0], sourceWeeks[7].sessions[1])] }
-];
+// La ruta conserva las 16 sesiones originales: dos encuentros por cada una
+// de las ocho semanas. No se fusionan contenidos para que cada avance tenga
+// su propio objetivo, codelab y evidencia de versionado.
+const weeks = sourceWeeks;
 
 window.courseWeeks = weeks;
 

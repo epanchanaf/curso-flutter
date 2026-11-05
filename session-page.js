@@ -18,6 +18,8 @@ const codeExamples = {
   12: { language: 'dart', code: 'final preferences = await SharedPreferences.getInstance();\nawait preferences.setBool(\'darkMode\', true);\nfinal isDarkMode = preferences.getBool(\'darkMode\') ?? false;' },
   13: { language: 'dart', code: 'final visibleTasks = tasks.where((task) {\n  return task.title.toLowerCase().contains(query.toLowerCase());\n}).toList();' },
   14: { language: 'shell', code: 'dart format lib test\nflutter analyze\nflutter test\nflutter build apk --release' },
+  15: { language: 'shell', code: '# README: requisitos, instalación, arquitectura, API y pruebas\ndart format lib test\nflutter analyze\nflutter test' },
+  16: { language: 'shell', code: 'dart format lib test\nflutter analyze\nflutter test\nflutter build apk --release\n\n# Salida esperada\n# build/app/outputs/flutter-apk/app-release.apk' },
 };
 
 function list(items) {

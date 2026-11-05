@@ -5,7 +5,8 @@ const codelabWeeks = [
   { number: 4, sessions: [{ number: 7, title: 'HTTP, asincronía, JSON y modelos' }, { number: 8, title: 'Repository, ViewModel y estados asíncronos' }] },
   { number: 5, sessions: [{ number: 9, title: 'Formularios, validación y operaciones CRUD' }, { number: 10, title: 'Errores, excepciones y resiliencia' }] },
   { number: 6, sessions: [{ number: 11, title: 'Pruebas unitarias y de widgets' }, { number: 12, title: 'Sesión, preferencias y persistencia ligera' }] },
-  { number: 7, sessions: [{ number: 13, title: 'Búsqueda, filtros y accesibilidad básica' }, { number: 14, title: 'Calidad, APK, demostración y evaluación final' }] }
+  { number: 7, sessions: [{ number: 13, title: 'Sesión, preferencias y persistencia ligera' }, { number: 14, title: 'Búsqueda, filtros y accesibilidad básica' }] },
+  { number: 8, sessions: [{ number: 15, title: 'Refactorización, documentación y preparación de entrega' }, { number: 16, title: 'Generación de APK, demostración y evaluación final' }] }
 ];
 
 const sidebarMenu = document.querySelector('.codelab-sidebar-menu');
