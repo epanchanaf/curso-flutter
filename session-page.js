@@ -128,14 +128,15 @@ if (!currentSession || !pageContent) {
   pageContent.className = 'codelab-layout session-codelab-layout';
   pageContent.parentElement.classList.add('session-codelab-main');
 
-  if (number >= 1 && number <= 4) {
+  if (number >= 1 && number <= 6) {
     pageContent.innerHTML = `
       ${sidebarMarkup()}
       <div class="codelab-content" id="detailed-codelab">
         <p class="session-objective">Cargando el codelab detallado de la sesión ${number}…</p>
       </div>`;
 
-    fetch('codelabs.html')
+    const detailedPage = number === 6 ? 'codelab-06.html' : number === 5 ? 'codelab-05.html' : 'codelabs.html';
+    fetch(detailedPage)
       .then((response) => {
         if (!response.ok) throw new Error('No se pudo leer el codelab original.');
         return response.text();
@@ -151,8 +152,9 @@ if (!currentSession || !pageContent) {
         enhanceCodeBlocks(destination);
       })
       .catch(() => {
+        const fallback = number >= 5 ? detailedPage : `codelabs.html#codelab-${number}`;
         pageContent.querySelector('#detailed-codelab').innerHTML =
-          `<p class="session-objective">No se pudo cargar el codelab detallado. Abre <a href="codelabs.html#codelab-${number}">la sesión ${number}</a> desde el índice.</p>`;
+          `<p class="session-objective">No se pudo cargar el codelab detallado. Abre <a href="${fallback}">la sesión ${number}</a> desde el índice.</p>`;
       });
   } else {
   pageContent.innerHTML = `

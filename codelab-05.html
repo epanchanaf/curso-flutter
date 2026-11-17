@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Codelab 05 · Modelado de datos | Curso Flutter</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="codelab-navigation.css" />
+</head>
+<body class="codelab-page">
+<main class="container"><div class="codelab-content">
+<section class="codelab-section" id="codelab-5">
+  <div class="container">
+    <div class="codelab-title">
+      <div class="session-badge">SESIÓN 5<br><span>3 HORAS</span></div>
+      <div><p class="eyebrow">CODELAB 05 · SEMANA 3</p><h2>Definir TaskFlow y modelar una tarea</h2><p>Vas a convertir una idea en requisitos comprobables y en una clase Dart que la aplicación puede utilizar.</p></div>
+    </div>
+    <div class="learning-box"><strong>Resultado observable:</strong> TaskFlow muestra tareas con identificador, título, descripción, prioridad, estado y usuario; el README explica para quién se construye, qué hará y qué datos necesitará de una API.</div>
+
+    <article class="lab-step"><div class="step-number">0</div><div>
+      <h3>Ruta de la clase · 180 minutos</h3>
+      <div class="code-reading">
+        <div><strong>Inicio · 0–25 min</strong><span>Recuperar el listado y el detalle de la sesión 4; identificar el problema que resuelve TaskFlow y quién usará la app.</span></div>
+        <div><strong>Desarrollo · 25–130 min</strong><span>Escribir historias y requisitos, comprender la entidad Task, ejecutar un ejemplo Dart y llevar el modelo a la interfaz.</span></div>
+        <div><strong>Cierre · 130–180 min</strong><span>Comprobar los datos en lista y detalle, completar la especificación autónoma, ejecutar el análisis y subir la evidencia.</span></div>
+      </div>
+      <p><strong>Preparación:</strong> ten abierto el proyecto <code>taskflow</code> de la sesión 4, con <code>go_router</code> instalado y el listado navegando al detalle. Necesitas una terminal en la carpeta del proyecto y un emulador o teléfono. Este laboratorio usa datos locales; todavía no hace solicitudes a una API.</p>
+      <pre data-language="shell"><code>cd taskflow
+flutter pub get
+flutter run</code></pre>
+      <p><strong>Punto de control:</strong> debes poder tocar una tarea, ver su detalle y regresar. Si tu carpeta ya es <code>taskflow</code>, omite el primer comando.</p>
+    </div></article>
+
+    <article class="lab-step"><div class="step-number">1</div><div>
+      <h3>Inicio · pasar de una idea a una necesidad</h3>
+      <p><strong>Problema:</strong> una persona tiene actividades dispersas y necesita saber cuáles siguen pendientes. <strong>Usuario objetivo:</strong> estudiante que organiza tareas académicas. <strong>Alcance:</strong> funciones que sí se podrán demostrar al finalizar el curso. “Una app para organizar toda mi vida” es una idea amplia; “listar, consultar, crear, editar y eliminar tareas” delimita un producto verificable.</p>
+      <div class="code-reading">
+        <div><strong>Alcance</strong><span>Conjunto de funciones incluidas en el proyecto. Ayuda a decidir qué se implementa primero y qué queda fuera.</span></div>
+        <div><strong>Historia de usuario</strong><span>Frase que explica quién necesita una función, qué quiere hacer y para qué: “Como estudiante, quiero ver mis tareas pendientes para planificar la semana”.</span></div>
+        <div><strong>Criterio de aceptación</strong><span>Condición observable que permite comprobar una historia. Ejemplo: “La lista muestra el título y el estado de cada tarea”.</span></div>
+        <div><strong>Requisito funcional</strong><span>Acción que la app debe permitir, por ejemplo consultar el detalle de una tarea.</span></div>
+        <div><strong>Requisito no funcional</strong><span>Calidad esperada de esa acción, por ejemplo que un error se explique con un mensaje entendible.</span></div>
+      </div>
+      <p><strong>Hazlo ahora:</strong> escribe en una hoja una historia y un criterio. Comprueba que el criterio pueda evaluarse mirando la app, sin interpretar intenciones.</p>
+    </div></article>
+
+    <article class="lab-step"><div class="step-number">2</div><div>
+      <h3>Desarrollo A · decidir qué representa Task</h3>
+      <p>Una <strong>entidad</strong> es un concepto del problema que tiene datos propios. Aquí la entidad es una tarea. Un <strong>modelo de datos</strong> es la clase Dart que representa esa entidad; no dibuja botones ni pantallas. Cada <strong>propiedad</strong> es un dato de la tarea y su <strong>tipo</strong> limita los valores que admite.</p>
+      <div class="code-reading">
+        <div><strong><code>id: int</code></strong><span>Número único de la tarea. Permite abrir el detalle correcto desde la ruta <code>/task/:id</code>.</span></div>
+        <div><strong><code>title: String</code></strong><span>Texto corto que identifica la tarea en la lista.</span></div>
+        <div><strong><code>description: String</code></strong><span>Texto más extenso con información para el detalle.</span></div>
+        <div><strong><code>priority: String</code></strong><span>Valor como Alta, Media o Baja; sirve para comunicar importancia.</span></div>
+        <div><strong><code>isCompleted: bool</code></strong><span><code>true</code> indica completada y <code>false</code> indica pendiente.</span></div>
+        <div><strong><code>userId: int</code></strong><span>Identificador de la persona propietaria. En esta práctica se usa un usuario de prueba; no hay inicio de sesión todavía.</span></div>
+      </div>
+      <p>El modelo también define un <strong>constructor</strong>, que indica qué datos se entregan al crear una tarea. <code>required</code> obliga a proporcionar cada propiedad; <code>final</code> impide reasignarla después. <code>const</code> permite crear objetos inmutables cuando sus valores ya se conocen.</p>
+    </div></article>
+
+    <article class="lab-step"><div class="step-number">3</div><div>
+      <h3>Ejemplo guiado · ejecutar el modelo sin interfaz</h3>
+      <p>Crea la carpeta <code>bin</code> en la raíz de <code>taskflow</code> y, dentro, el archivo <code>model_demo.dart</code>. Pega el bloque <strong>completo</strong>. Es un programa Dart independiente para observar la conversión de JSON sin mezclarla con widgets.</p>
+      <pre data-language="dart"><code>import 'dart:convert';
+
+class Task {
+  const Task({
+    required this.id,
+    required this.title,
+    required this.description,
+    required this.priority,
+    required this.isCompleted,
+    required this.userId,
+  });
+
+  final int id;
+  final String title;
+  final String description;
+  final String priority;
+  final bool isCompleted;
+  final int userId;
+
+  factory Task.fromJson(Map&lt;String, dynamic&gt; json) {
+    return Task(
+      id: json['id'] as int,
+      title: json['title'] as String,
+      description: json['description'] as String,
+      priority: json['priority'] as String,
+      isCompleted: json['isCompleted'] as bool,
+      userId: json['userId'] as int,
+    );
+  }
+}
+
+void main() {
+  const response = '''
+  {
+    "id": 7,
+    "title": "Preparar exposición",
+    "description": "Organizar diapositivas y practicar",
+    "priority": "Alta",
+    "isCompleted": false,
+    "userId": 1
+  }
+  ''';
+
+  final json = jsonDecode(response) as Map&lt;String, dynamic&gt;;
+  final task = Task.fromJson(json);
+  print('Tarea ${task.id}: ${task.title}');
+  print('Prioridad: ${task.priority}');
+  print('Pendiente: ${!task.isCompleted}');
+}</code></pre>
+      <pre data-language="shell"><code>dart run bin/model_demo.dart</code></pre>
+      <p><strong>Resultado esperado:</strong> tres líneas: <code>Tarea 7: Preparar exposición</code>, <code>Prioridad: Alta</code> y <code>Pendiente: true</code>.</p>
+      <div class="explain"><strong>Cómo leerlo:</strong> JSON es texto con claves y valores. <code>jsonDecode</code> lo convierte en un mapa Dart; <code>Map&lt;String, dynamic&gt;</code> significa claves de texto y valores de distintos tipos. <code>factory Task.fromJson</code> es un constructor alternativo que procesa el mapa antes de crear un <code>Task</code>. <code>as int</code> y <code>as String</code> comprueban el tipo esperado y fallan si no coincide; si la API real usa otros nombres o tipos, este contrato tendrá que adaptarse. Consulta las guías oficiales de <a href="https://dart.dev/learn/tutorial/data-and-json" target="_blank" rel="noopener">JSON en Dart</a> y <a href="https://dart.dev/language/constructors" target="_blank" rel="noopener">constructores</a>.</div>
+      <p>El archivo <code>bin/model_demo.dart</code> es solo el ejercicio guiado. No lo incluyas en el commit del avance autónomo.</p>
+    </div></article>
+
+    <article class="lab-step"><div class="step-number">4</div><div>
+      <h3>Desarrollo B · crear el modelo de TaskFlow</h3>
+      <p>Crea <code>lib/task.dart</code> y pega este archivo completo. Mantener la entidad en un archivo propio permite importarla desde la lista, el detalle y más adelante el acceso a datos. La estructura por funcionalidades se trabajará en la sesión 6.</p>
+      <pre data-language="dart"><code>class Task {
+  const Task({
+    required this.id,
+    required this.title,
+    required this.description,
+    required this.priority,
+    required this.isCompleted,
+    required this.userId,
+  });
+
+  final int id;
+  final String title;
+  final String description;
+  final String priority;
+  final bool isCompleted;
+  final int userId;
+
+  factory Task.fromJson(Map&lt;String, dynamic&gt; json) {
+    return Task(
+      id: json['id'] as int,
+      title: json['title'] as String,
+      description: json['description'] as String,
+      priority: json['priority'] as String,
+      isCompleted: json['isCompleted'] as bool,
+      userId: json['userId'] as int,
+    );
+  }
+}</code></pre>
+      <p><strong>Comprueba:</strong> el archivo comienza con <code>class Task</code>; no requiere <code>import</code> porque solo utiliza tipos básicos de Dart. En el siguiente paso, <code>main.dart</code> lo importará una sola vez.</p>
+    </div></article>
+
+    <article class="lab-step"><div class="step-number">5</div><div>
+      <h3>Desarrollo C · usar el modelo en lista y detalle</h3>
+      <p>Para evitar piezas sueltas difíciles de ubicar, reemplaza <strong>todo</strong> el contenido de <code>lib/main.dart</code> por este archivo. Conserva el listado y la navegación de la sesión 4, y agrega <code>userId</code> en los datos. Si ya personalizaste tu aplicación, guarda antes una copia y reincorpora luego tus textos.</p>
+      <pre data-language="dart"><code>import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+import 'task.dart';
+
+void main() {
+  runApp(const TaskFlowApp());
+}
+
+const demoTasks = &lt;Task&gt;[
+  Task(
+    id: 1,
+    title: 'Leer documentación',
+    description: 'Revisar el material de Flutter',
+    priority: 'Alta',
+    isCompleted: false,
+    userId: 1,
+  ),
+  Task(
+    id: 2,
+    title: 'Diseñar pantalla',
+    description: 'Dibujar la lista de tareas',
+    priority: 'Media',
+    isCompleted: false,
+    userId: 1,
+  ),
+  Task(
+    id: 3,
+    title: 'Preparar evidencia',
+    description: 'Tomar capturas del avance',
+    priority: 'Baja',
+    isCompleted: true,
+    userId: 1,
+  ),
+  Task(
+    id: 4,
+    title: 'Organizar pendientes',
+    description: 'Ordenar actividades de la semana',
+    priority: 'Alta',
+    isCompleted: false,
+    userId: 1,
+  ),
+  Task(
+    id: 5,
+    title: 'Revisar el proyecto',
+    description: 'Ejecutar el análisis de Flutter',
+    priority: 'Media',
+    isCompleted: false,
+    userId: 1,
+  ),
+];
+
+Task? findTask(int? id) {
+  for (final task in demoTasks) {
+    if (task.id == id) return task;
+  }
+  return null;
+}
+
+final appRouter = GoRouter(
+  routes: [
+    GoRoute(
+      path: '/',
+      builder: (context, state) =&gt; const TaskListScreen(),
+    ),
+    GoRoute(
+      path: '/task/:id',
+      builder: (context, state) {
+        final id = int.tryParse(state.pathParameters['id'] ?? '');
+        return TaskDetailScreen(task: findTask(id));
+      },
+    ),
+  ],
+);
+
+class TaskFlowApp extends StatelessWidget {
+  const TaskFlowApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
+      title: 'TaskFlow',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
+      ),
+      routerConfig: appRouter,
+    );
+  }
+}
+
+class TaskListScreen extends StatelessWidget {
+  const TaskListScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Mis tareas')),
+      body: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: demoTasks.length,
+        itemBuilder: (context, index) {
+          final task = demoTasks[index];
+          return Card(
+            child: ListTile(
+              leading: Icon(
+                task.isCompleted
+                    ? Icons.check_circle
+                    : Icons.radio_button_unchecked,
+              ),
+              title: Text(task.title),
+              subtitle: Text('Prioridad: ${task.priority}'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () =&gt; context.push('/task/${task.id}'),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class TaskDetailScreen extends StatelessWidget {
+  const TaskDetailScreen({super.key, required this.task});
+
+  final Task? task;
+
+  @override
+  Widget build(BuildContext context) {
+    final selected = task;
+    return Scaffold(
+      appBar: AppBar(title: const Text('Detalle de tarea')),
+      body: Padding(
+        padding: const EdgeInsets.all(24),
+        child: selected == null
+            ? const Text('No se encontró esta tarea.')
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    selected.title,
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(selected.description),
+                  const SizedBox(height: 16),
+                  Text('Prioridad: ${selected.priority}'),
+                  Text(
+                    selected.isCompleted
+                        ? 'Estado: completada'
+                        : 'Estado: pendiente',
+                  ),
+                  Text('Usuario: ${selected.userId}'),
+                ],
+              ),
+      ),
+    );
+  }
+}</code></pre>
+      <p><strong>Cómo funciona:</strong> <code>import 'task.dart'</code> conecta ambos archivos. <code>demoTasks</code> es una lista local de cinco objetos <code>Task</code>. <code>ListView.builder</code> construye una tarjeta por elemento. Al tocar una tarjeta, <code>context.push</code> abre la ruta que contiene su id; <code>findTask</code> busca el objeto correspondiente. El signo <code>?</code> indica que una búsqueda puede no encontrar nada; por eso el detalle muestra un mensaje en lugar de fallar. <code>StatelessWidget</code> describe una pantalla cuyos datos locales no cambian durante esta práctica. Revisa la <a href="https://pub.dev/documentation/go_router/latest/topics/Configuration-topic.html" target="_blank" rel="noopener">guía de rutas de go_router</a> para reconocer el parámetro <code>:id</code>.</p>
+    </div></article>
+
+    <article class="lab-step"><div class="step-number">6</div><div>
+      <h3>Cierre · comprobar el resultado antes del trabajo autónomo</h3>
+      <pre data-language="shell"><code>dart format lib
+flutter analyze
+flutter run</code></pre>
+      <ol class="numbered"><li>La lista muestra cinco tarjetas, sus títulos y prioridades.</li><li>Al tocar la primera, el detalle muestra su descripción, prioridad, estado y usuario 1.</li><li>Al volver y tocar la tercera, aparece “Estado: completada”.</li><li><code>flutter analyze</code> termina sin errores.</li><li>En el ejemplo guiado, cambia <code>priority</code> de una tarea y verifica el cambio en lista y detalle.</li></ol>
+      <details><summary>¿Por qué flutter analyze menciona MyApp en test/widget_test.dart?</summary><p>Ese archivo de prueba puede seguir apuntando a la app de contador que generó <code>flutter create</code>. Solo si todavía conserva esa prueba de plantilla, reemplaza <code>test/widget_test.dart</code> por este archivo completo. Una <strong>prueba de widget</strong> monta la interfaz y comprueba lo que aparece; las estudiaremos a fondo en la sesión 12.</p><pre data-language="dart"><code>import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:taskflow/main.dart';
+
+void main() {
+  testWidgets('TaskFlow abre el listado', (tester) async {
+    await tester.pumpWidget(const TaskFlowApp());
+    await tester.pumpAndSettle();
+
+    expect(find.text('Mis tareas'), findsOneWidget);
+    expect(find.byType(ListView), findsOneWidget);
+  });
+}</code></pre><p>Después ejecuta <code>flutter analyze</code> y <code>flutter test</code>. Si ya escribiste tus propias pruebas, consérvalas y corrige solo sus referencias antiguas.</p></details>
+      <p>Si ya tenías tareas personalizadas, el bloque completo es una base de aprendizaje: vuelve a incorporarlas durante el trabajo autónomo. No hagas todavía un commit del ejemplo guiado.</p>
+    </div></article>
+
+    <aside class="challenge">
+      <p class="eyebrow">TRABAJO AUTÓNOMO INCREMENTAL · 35 MIN</p><h3>Especificar tu versión de TaskFlow</h3>
+      <p><strong>Aplicar:</strong> historia de usuario, criterios de aceptación, requisitos, modelo y contrato JSON. <strong>Avance:</strong> cambia los cinco objetos de <code>demoTasks</code> por cinco tareas propias sin repetir ids; conserva <code>userId</code> e identifica en el README el usuario objetivo, cinco historias con un criterio comprobable cada una, tres pantallas (lista, detalle y formulario futuro) y los endpoints que necesitarías. <strong>Evidencia:</strong> README legible, captura de lista y detalle con tus datos, y <code>flutter analyze</code> sin errores.</p>
+    </aside>
+
+    <article class="lab-step"><div class="step-number">7</div><div>
+      <h3>Escribir la especificación en README.md</h3>
+      <p>Abre el <code>README.md</code> de <strong>tu proyecto TaskFlow</strong> y agrega una sección como esta al final. No reemplaces las instrucciones de instalación que ya tengas. Cambia los textos para que describan tus cinco tareas reales.</p>
+      <pre data-language="text"><code>## Alcance de TaskFlow
+
+Problema: necesito organizar actividades académicas y saber cuáles faltan.
+Usuario objetivo: estudiante que planifica entregas semanales.
+
+### Historias de usuario y criterios de aceptación
+1. Como estudiante, quiero listar mis tareas para ver qué debo hacer.
+   Criterio: la lista muestra título, prioridad y estado de cada tarea.
+2. Como estudiante, quiero abrir una tarea para leer su descripción.
+   Criterio: al tocar una tarjeta aparece el detalle de la tarea elegida.
+3. Como estudiante, quiero crear una tarea para registrar un pendiente.
+   Criterio: el formulario guarda una tarea válida y la lista la muestra.
+4. Como estudiante, quiero editar una tarea para corregir sus datos.
+   Criterio: los cambios guardados aparecen en lista y detalle.
+5. Como estudiante, quiero eliminar una tarea terminada para limpiar la lista.
+   Criterio: después de confirmar, la tarea desaparece de la lista.
+
+### Modelo de datos
+Task: id (entero único), title (texto), description (texto),
+priority (Alta, Media o Baja), isCompleted (verdadero/falso),
+userId (entero que identifica al usuario de prueba).
+
+### Pantallas previstas
+Lista: tarjetas de tareas y acción para crear.
+Detalle: información completa y futuras acciones de editar o eliminar.
+Formulario: campos de título, descripción y prioridad.
+
+### Requisitos no funcionales
+La navegación debe tener textos comprensibles.
+Un id inexistente debe mostrar un mensaje en vez de cerrar la app.
+
+### Contrato de API que necesitaremos
+GET /tasks        listar tareas
+GET /tasks/:id    consultar detalle
+POST /tasks       crear tarea
+PATCH /tasks/:id  actualizar tarea
+DELETE /tasks/:id eliminar tarea
+
+La API concreta se elegirá después. Estas rutas son requisitos, no
+direcciones de un servidor ya conectado.</code></pre>
+      <p><strong>Importante:</strong> un <strong>endpoint</strong> es una ruta de la API que ofrece una operación. <code>GET</code> consulta, <code>POST</code> crea, <code>PATCH</code> modifica parcialmente y <code>DELETE</code> elimina. Documentarlos ahora permite verificar después si una API real cubre el alcance. Las historias 3–5 se implementarán en sesiones posteriores; aquí se especifican.</p>
+    </div></article>
+
+    <article class="lab-step"><div class="step-number">8</div><div>
+      <h3>Revisar, registrar y subir el avance autónomo</h3>
+      <p>Comprueba que los cinco ids son diferentes, que las tarjetas abren el detalle correcto y que el README describe lo que vas a construir. Conserva una captura de lista y otra de detalle. Si creaste <code>bin/model_demo.dart</code>, elimina ese archivo guiado antes de preparar el commit.</p>
+      <pre data-language="shell"><code>dart format lib
+flutter analyze
+git status
+git add README.md lib/main.dart lib/task.dart
+git commit -m "docs: definir alcance y modelo de TaskFlow"
+git push origin main</code></pre>
+      <p>Ejecuta los comandos desde la raíz de <code>taskflow</code>. Si actualizaste <code>test/widget_test.dart</code> porque seguía siendo la prueba de plantilla, agrega ese archivo al <code>git add</code>. Si tu rama remota no se llama <code>main</code>, usa el nombre real de tu rama. Después del push, verifica que el README y el commit aparezcan en el repositorio remoto.</p>
+    </div></article>
+
+    <div class="common-errors"><h3>Errores frecuentes y primera comprobación</h3><dl>
+      <dt>“Task is defined twice”</dt><dd>Deja la clase <code>Task</code> solo en <code>lib/task.dart</code>; elimina la definición antigua de <code>main.dart</code> y conserva <code>import 'task.dart'</code>.</dd>
+      <dt>Falta <code>userId</code></dt><dd>El constructor lo exige. Comprueba que cada <code>Task(...)</code> de <code>demoTasks</code> incluya <code>userId: 1</code> u otro entero.</dd>
+      <dt>“Target of URI doesn't exist: go_router”</dt><dd>Desde <code>taskflow</code>, ejecuta <code>flutter pub get</code>. Si el paquete no figura en <code>pubspec.yaml</code>, usa <code>flutter pub add go_router</code>.</dd>
+      <dt>Error de tipo en <code>fromJson</code></dt><dd>Revisa las claves y tipos del JSON. Este ejemplo espera exactamente <code>isCompleted</code> como booleano y <code>userId</code> como entero.</dd>
+      <dt>El detalle muestra otra tarea</dt><dd>Verifica que cada id sea único y que <code>context.push('/task/${task.id}')</code> use el id de la tarjeta tocada.</dd>
+      <dt><code>git push</code> falla</dt><dd>Comprueba la rama con <code>git branch --show-current</code> y que el repositorio remoto esté configurado con <code>git remote -v</code>.</dd>
+    </dl></div>
+    <div class="finish-line"><h3>Resultado verificable de la sesión 5</h3><p>TaskFlow presenta cinco tareas propias en lista y detalle; el README contiene problema, usuario, cinco historias comprobables, modelo, pantallas y operaciones de API previstas. El repositorio remoto muestra el commit del avance autónomo.</p></div>
+  </div>
+</section>
+</div></main>
+<script src="syntax.js"></script>
+</body>
+</html>

@@ -51,7 +51,7 @@
   }
 
   function detectLanguage(pre, source) {
-    if (pre.dataset.language === 'dart' || pre.dataset.language === 'shell') {
+    if (['dart', 'shell', 'text'].includes(pre.dataset.language)) {
       return pre.dataset.language;
     }
 
@@ -113,7 +113,11 @@
       const language = detectLanguage(pre, source);
       pre.dataset.language = language;
       pre.dataset.syntaxHighlighted = 'true';
-      block.innerHTML = language === 'dart' ? highlightDart(source) : highlightShell(source);
+      block.innerHTML = language === 'dart'
+        ? highlightDart(source)
+        : language === 'shell'
+          ? highlightShell(source)
+          : escapeHtml(source);
       addCopyButton(pre, source, language);
     });
   }
