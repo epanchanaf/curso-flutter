@@ -1,0 +1,115 @@
+<!doctype html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Codelab 14 · Buscar, filtrar y mejorar accesibilidad | Curso Flutter</title><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="codelab-navigation.css"></head><body class="codelab-page"><main class="container"><div class="codelab-content"><section class="codelab-section" id="codelab-14"><div class="container"><div class="codelab-title"><div class="session-badge">SESIÓN 14<br><span>2 HORAS</span></div><div><p class="eyebrow">CODELAB 14 · SEMANA 7</p><h2>Buscar, filtrar y mejorar accesibilidad</h2><p>TaskFlow permite buscar por título, filtrar por estado y recuperar la lista completa.</p></div></div><div class="learning-box"><strong>Resultado observable:</strong> TaskFlow permite buscar por título, filtrar por estado y recuperar la lista completa.</div><article class="lab-step"><div class="step-number">0</div><div><h3>Preparar TaskFlow</h3><p>Inicio · 15 min; desarrollo y ejemplo guiado · 75 min; cierre y trabajo autónomo · 30 min. Parte de la lista y preferencias de la sesión 13. Conserva la lista original del ViewModel: un filtro solo cambia qué se muestra, no elimina datos del Repository. Ejecuta primero los comandos desde la raíz de <code>taskflow</code>. Si el proyecto no compila, recupera el último commit funcional antes de avanzar.</p><pre data-language="shell"><code>flutter pub get
+flutter analyze
+flutter run</code></pre><p>Punto de control: abre la lista y el detalle de una tarea; ambos deben conservar el avance de la sesión anterior.</p></div></article><article class="lab-step"><div class="step-number">1</div><div><h3>Conceptos antes de programar</h3><div class="code-reading"><div><strong>Búsqueda</strong><span>Comparar el título con el texto escrito, ignorando mayúsculas.</span></div><div><strong>Filtro</strong><span>Mostrar únicamente tareas que cumplen una condición, por ejemplo pendientes.</span></div><div><strong>Lista derivada</strong><span>Resultado calculado desde la lista original sin modificarla.</span></div><div><strong>Semantics y tooltip</strong><span>Etiquetas que ayudan a lectores de pantalla y explican botones de icono.</span></div></div></div></article><article class="lab-step"><div class="step-number">2</div><div><h3>Agregar estado de búsqueda al ViewModel</h3><p>Dentro de <code>TasksViewModel</code>, agrega estos campos y métodos. No reemplaces <code>tasks</code>, <code>loadTasks</code> ni <code>toggleCompleted</code>.</p><pre data-language="dart"><code>String query = &#x27;&#x27;;
+bool onlyPending = false;
+
+List&lt;Task&gt; get visibleTasks =&gt; tasks.where((task) {
+  final matchesText = task.title.toLowerCase()
+      .contains(query.trim().toLowerCase());
+  final matchesState = !onlyPending || !task.isCompleted;
+  return matchesText &amp;&amp; matchesState;
+}).toList();
+
+void setQuery(String value) { query = value; notifyListeners(); }
+void setOnlyPending(bool value) {
+  onlyPending = value; notifyListeners();
+}
+void clearFilters() {
+  query = &#x27;&#x27;; onlyPending = false; notifyListeners();
+}</code></pre><p>La comparación usa la lista original. <code>notifyListeners</code> actualiza la vista sin consultar de nuevo la API.</p></div></article><article class="lab-step"><div class="step-number">3</div><div><h3>Crear controles que conservan el texto</h3><p>Crea <code>lib/features/tasks/presentation/task_search_controls.dart</code> y pega el archivo completo. El controlador vive en un <code>StatefulWidget</code>; así el cursor no pierde el foco cuando el ViewModel avisa un cambio. El botón Limpiar borra tanto el campo visible como los filtros.</p><pre data-language="dart"><code>import &#x27;package:flutter/material.dart&#x27;;
+import &#x27;package:provider/provider.dart&#x27;;
+import &#x27;tasks_view_model.dart&#x27;;
+
+class TaskSearchControls extends StatefulWidget {
+  const TaskSearchControls({super.key});
+  @override
+  State&lt;TaskSearchControls&gt; createState() =&gt; _TaskSearchControlsState();
+}
+
+class _TaskSearchControlsState extends State&lt;TaskSearchControls&gt; {
+  late final TextEditingController _search;
+  @override
+  void initState() {
+    super.initState();
+    _search = TextEditingController(
+      text: context.read&lt;TasksViewModel&gt;().query,
+    );
+  }
+  @override
+  void dispose() { _search.dispose(); super.dispose(); }
+
+  @override
+  Widget build(BuildContext context) {
+    final model = context.watch&lt;TasksViewModel&gt;();
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Column(children: [
+        TextField(
+          controller: _search,
+          decoration: const InputDecoration(
+            labelText: &#x27;Buscar por título&#x27;,
+            prefixIcon: Icon(Icons.search),
+          ),
+          onChanged: context.read&lt;TasksViewModel&gt;().setQuery,
+        ),
+        SwitchListTile(
+          title: const Text(&#x27;Solo pendientes&#x27;),
+          value: model.onlyPending,
+          onChanged: context.read&lt;TasksViewModel&gt;().setOnlyPending,
+        ),
+        TextButton(
+          onPressed: () {
+            _search.clear();
+            context.read&lt;TasksViewModel&gt;().clearFilters();
+          },
+          child: const Text(&#x27;Limpiar filtros&#x27;),
+        ),
+      ]),
+    );
+  }
+}</code></pre><p><code>dispose</code> libera el controlador cuando la pantalla deja de existir. El texto se conserva durante las reconstrucciones normales.</p></div></article><article class="lab-step"><div class="step-number">4</div><div><h3>Mostrar resultados o cero coincidencias</h3><p>En <code>task_list_screen.dart</code>, importa <code>task_search_controls.dart</code>. Dentro de <code>_buildBody</code>, conserva sin cambios las ramas de carga, error y lista remota vacía de la sesión 8. Reemplaza <strong>solo</strong> el <code>return RefreshIndicator(...)</code> final por este bloque completo:</p><pre data-language="dart"><code>return Column(
+  children: [
+    const TaskSearchControls(),
+    if (viewModel.visibleTasks.isEmpty)
+      const Expanded(
+        child: Center(
+          child: Text(&#x27;No hay resultados para estos filtros.&#x27;),
+        ),
+      )
+    else
+      Expanded(
+        child: RefreshIndicator(
+          onRefresh: () =&gt; context.read&lt;TasksViewModel&gt;().loadTasks(),
+          child: ListView.builder(
+            physics: const AlwaysScrollableScrollPhysics(),
+            padding: const EdgeInsets.all(16),
+            itemCount: viewModel.visibleTasks.length,
+            itemBuilder: (context, index) {
+              final task = viewModel.visibleTasks[index];
+              return Card(
+                child: ListTile(
+                  leading: Icon(task.isCompleted
+                      ? Icons.check_circle
+                      : Icons.radio_button_unchecked),
+                  title: Text(task.title),
+                  subtitle: Text(&#x27;Prioridad: ${task.priority}&#x27;),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () =&gt; context.push(&#x27;/task/${task.id}&#x27;),
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+  ],
+);</code></pre><p><code>Expanded</code> da espacio acotado a la lista desplazable. Cero coincidencias después de filtrar es distinto del estado vacío de la API. Usa Limpiar filtros para recuperar todas las tareas ya cargadas.</p></div></article><article class="lab-step"><div class="step-number">5</div><div><h3>Revisar accesibilidad</h3><p>Añade <code>tooltip</code> a botones con solo icono. Prueba tamaño de texto grande en Android y verifica que títulos, mensajes y acciones siguen visibles.</p><pre data-language="dart"><code>IconButton(
+  tooltip: &#x27;Actualizar tareas&#x27;,
+  onPressed: () =&gt; context.read&lt;TasksViewModel&gt;().loadTasks(),
+  icon: const Icon(Icons.refresh),
+)</code></pre><p>No uses el color como única señal de estado: conserva texto o icono con significado.</p></div></article><aside class="challenge"><p class="eyebrow">TRABAJO AUTÓNOMO INCREMENTAL</p><h3>Aplicar en tu TaskFlow</h3><p><strong>Aplicar:</strong> búsqueda, filtro de estado y etiquetas accesibles. <strong>Avance:</strong> combina texto y “Solo pendientes”, agrega Limpiar y mensaje sin resultados. <strong>Evidencia:</strong> capturas con filtros activos y después de limpiarlos.</p></aside><article class="lab-step"><div class="step-number">6</div><div><h3>Comprobar y subir el avance</h3><p>Prueba búsqueda sin distinguir mayúsculas, filtro solo pendientes, ambas opciones juntas, cero resultados y botón Limpiar.</p><pre data-language="shell"><code>dart format lib
+flutter analyze
+flutter test
+git status
+git add README.md lib test pubspec.yaml pubspec.lock
+git commit -m &quot;feat: buscar y filtrar tareas&quot;
+git push origin main</code></pre><p>Si tu rama no se llama main, usa el nombre que muestra <code>git branch --show-current</code>. Comprueba el commit en GitHub; el ejemplo guiado no se versiona como evidencia aislada.</p></div></article><div class="common-errors"><h3>Errores frecuentes y primera acción</h3><dl><dt>La lista queda vacía permanentemente</dt><dd>Filtra desde <code>tasks</code>, no sobrescribas <code>_tasks</code>.</dd><dt>Overflow en Column</dt><dd>Envuelve la lista desplazable con <code>Expanded</code>.</dd><dt>No se puede limpiar el texto</dt><dd>Usa un <code>TextEditingController</code> y límpialo al llamar a <code>clearFilters</code>.</dd></dl></div><div class="finish-line"><h3>Resultado verificable</h3><p>TaskFlow permite buscar por título, filtrar por estado y recuperar la lista completa. La evidencia del avance autónomo debe estar en el repositorio remoto.</p></div></div></section></div></main><script src="syntax.js"></script></body></html>

@@ -1,0 +1,78 @@
+<!doctype html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Codelab 13 · Guardar preferencias pequeñas | Curso Flutter</title><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="codelab-navigation.css"></head><body class="codelab-page"><main class="container"><div class="codelab-content"><section class="codelab-section" id="codelab-13"><div class="container"><div class="codelab-title"><div class="session-badge">SESIÓN 13<br><span>3 HORAS</span></div><div><p class="eyebrow">CODELAB 13 · SEMANA 7</p><h2>Guardar preferencias pequeñas</h2><p>TaskFlow recuerda el nombre mostrado al cerrar y volver a abrir la aplicación.</p></div></div><div class="learning-box"><strong>Resultado observable:</strong> TaskFlow recuerda el nombre mostrado al cerrar y volver a abrir la aplicación.</div><article class="lab-step"><div class="step-number">0</div><div><h3>Preparar TaskFlow</h3><p>Inicio · 15 min; desarrollo y ejemplo guiado · 75 min; cierre y trabajo autónomo · 30 min. Parte del proyecto probado en la sesión 12. Esta API de práctica no exige autenticación: guarda una preferencia no sensible y no inventes un token de sesión. Ejecuta primero los comandos desde la raíz de <code>taskflow</code>. Si el proyecto no compila, recupera el último commit funcional antes de avanzar.</p><pre data-language="shell"><code>flutter pub get
+flutter analyze
+flutter run</code></pre><p>Punto de control: abre la lista y el detalle de una tarea; ambos deben conservar el avance de la sesión anterior.</p></div></article><article class="lab-step"><div class="step-number">1</div><div><h3>Conceptos antes de programar</h3><div class="code-reading"><div><strong>Persistencia</strong><span>Conservar un dato después de cerrar la app.</span></div><div><strong>Clave y valor</strong><span>Una clave como user_name identifica una cadena almacenada.</span></div><div><strong>SharedPreferencesAsync</strong><span>API asíncrona del paquete shared_preferences para leer y escribir preferencias pequeñas.</span></div><div><strong>Token</strong><span>Credencial de autenticación. Si una API real lo requiere, necesita almacenamiento seguro; aquí no se usa.</span></div></div></div></article><article class="lab-step"><div class="step-number">2</div><div><h3>Instalar el paquete</h3><p>Ejecuta el comando en la raíz de TaskFlow. El paquete se añade a <code>pubspec.yaml</code>.</p><pre data-language="shell"><code>flutter pub add shared_preferences</code></pre><p>No guardes contraseñas ni tokens en preferencias simples.</p></div></article><article class="lab-step"><div class="step-number">3</div><div><h3>Crear el servicio de preferencias</h3><p>Crea <code>lib/core/user_preferences.dart</code>.</p><pre data-language="dart"><code>import &#x27;package:shared_preferences/shared_preferences.dart&#x27;;
+
+class UserPreferences {
+  UserPreferences(this._preferences);
+  final SharedPreferencesAsync _preferences;
+  static const _nameKey = &#x27;user_name&#x27;;
+
+  Future&lt;String&gt; readName() async =&gt;
+      await _preferences.getString(_nameKey) ?? &#x27;Estudiante&#x27;;
+
+  Future&lt;void&gt; saveName(String name) async {
+    await _preferences.setString(_nameKey, name.trim());
+  }
+}</code></pre><p><code>??</code> proporciona el nombre inicial si todavía no hay nada guardado.</p></div></article><article class="lab-step"><div class="step-number">4</div><div><h3>Crear una pantalla de configuración</h3><p>Crea <code>lib/core/settings_screen.dart</code>.</p><pre data-language="dart"><code>import &#x27;package:flutter/material.dart&#x27;;
+import &#x27;user_preferences.dart&#x27;;
+
+class SettingsScreen extends StatefulWidget {
+  const SettingsScreen({super.key, required this.preferences});
+  final UserPreferences preferences;
+  @override
+  State&lt;SettingsScreen&gt; createState() =&gt; _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State&lt;SettingsScreen&gt; {
+  final _controller = TextEditingController();
+  bool _loading = true;
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+  Future&lt;void&gt; _load() async {
+    final name = await widget.preferences.readName();
+    if (!mounted) return;
+    setState(() { _controller.text = name; _loading = false; });
+  }
+  @override
+  void dispose() { _controller.dispose(); super.dispose(); }
+  Future&lt;void&gt; _save() async {
+    final name = _controller.text.trim();
+    if (name.isEmpty) return;
+    await widget.preferences.saveName(name);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text(&#x27;Nombre guardado&#x27;)),
+    );
+  }
+  @override
+  Widget build(BuildContext context) =&gt; Scaffold(
+    appBar: AppBar(title: const Text(&#x27;Configuración&#x27;)),
+    body: _loading ? const Center(child: CircularProgressIndicator())
+      : Padding(padding: const EdgeInsets.all(16), child: Column(children: [
+          TextField(controller: _controller,
+            decoration: const InputDecoration(labelText: &#x27;Tu nombre&#x27;)),
+          const SizedBox(height: 16),
+          FilledButton(onPressed: _save, child: const Text(&#x27;Guardar&#x27;)),
+        ])),
+  );
+}</code></pre><p><code>mounted</code> comprueba que la pantalla siga visible después de esperar una operación asíncrona.</p></div></article><article class="lab-step"><div class="step-number">5</div><div><h3>Agregar acceso a configuración</h3><p>En <code>taskflow_app.dart</code>, importa <code>SettingsScreen</code>, <code>UserPreferences</code> y <code>SharedPreferencesAsync</code>. Agrega una ruta <code>/settings</code>. En la lista, añade un botón de configuración a <code>AppBar.actions</code>.</p><pre data-language="dart"><code>GoRoute(
+  path: &#x27;/settings&#x27;,
+  builder: (context, state) =&gt; SettingsScreen(
+    preferences: UserPreferences(SharedPreferencesAsync()),
+  ),
+),</code></pre><p>En <code>task_list_screen.dart</code>, agrega este botón al arreglo <code>actions</code> del <code>AppBar</code>, después del botón Actualizar. Conserva las rutas existentes.</p><pre data-language="dart"><code>IconButton(
+  tooltip: 'Configuración',
+  onPressed: () =&gt; context.push('/settings'),
+  icon: const Icon(Icons.settings),
+),</code></pre><p>La ruta abre una pantalla independiente; la lista remota y el detalle siguen disponibles.</p></div></article><article class="lab-step"><div class="step-number">6</div><div><h3>Comprobar persistencia</h3><p>Escribe un nombre, pulsa Guardar, cierra completamente la app y ábrela otra vez. El campo debe mostrar el nombre guardado.</p><pre data-language="shell"><code>dart format lib
+flutter analyze
+flutter run</code></pre><p>Hot Reload no prueba persistencia; cierra y vuelve a abrir la aplicación.</p></div></article><aside class="challenge"><p class="eyebrow">TRABAJO AUTÓNOMO INCREMENTAL</p><h3>Aplicar en tu TaskFlow</h3><p><strong>Aplicar:</strong> lectura y escritura asíncrona de preferencias. <strong>Avance:</strong> muestra el nombre recordado en la pantalla de configuración y, si lo deseas, en el encabezado de la lista. <strong>Evidencia:</strong> dos capturas antes y después de reiniciar.</p></aside><article class="lab-step"><div class="step-number">7</div><div><h3>Comprobar y subir el avance</h3><p>Comprueba nombre inicial, guardado y recuperación. Documenta en README que es una preferencia local y no una sesión autenticada.</p><pre data-language="shell"><code>dart format lib
+flutter analyze
+flutter test
+git status
+git add README.md lib test pubspec.yaml pubspec.lock
+git commit -m &quot;feat: guardar preferencia de usuario&quot;
+git push origin main</code></pre><p>Si tu rama no se llama main, usa el nombre que muestra <code>git branch --show-current</code>. Comprueba el commit en GitHub; el ejemplo guiado no se versiona como evidencia aislada.</p></div></article><div class="common-errors"><h3>Errores frecuentes y primera acción</h3><dl><dt>No encuentra shared_preferences</dt><dd>Ejecuta <code>flutter pub add shared_preferences</code> en la raíz.</dd><dt>El nombre no se conserva</dt><dd>Comprueba que usas la misma clave <code>user_name</code> al leer y guardar.</dd><dt>setState después de cerrar</dt><dd>Comprueba <code>mounted</code> tras cada <code>await</code>.</dd></dl></div><div class="finish-line"><h3>Resultado verificable</h3><p>TaskFlow recuerda el nombre mostrado al cerrar y volver a abrir la aplicación. La evidencia del avance autónomo debe estar en el repositorio remoto.</p></div></div></section></div></main><script src="syntax.js"></script></body></html>

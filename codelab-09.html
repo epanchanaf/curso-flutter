@@ -1,0 +1,99 @@
+<!doctype html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Codelab 09 · Crear un formulario de tareas | Curso Flutter</title><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="codelab-navigation.css"></head><body class="codelab-page"><main class="container"><div class="codelab-content"><section class="codelab-section" id="codelab-9"><div class="container"><div class="codelab-title"><div class="session-badge">SESIÓN 9<br><span>3 HORAS</span></div><div><p class="eyebrow">CODELAB 09 · SEMANA 5</p><h2>Crear un formulario de tareas</h2><p>TaskFlow valida título, descripción y prioridad antes de preparar una tarea nueva.</p></div></div><div class="learning-box"><strong>Resultado observable:</strong> TaskFlow valida título, descripción y prioridad antes de preparar una tarea nueva.</div><article class="lab-step"><div class="step-number">0</div><div><h3>Preparar TaskFlow</h3><p>Inicio · 15 min; desarrollo y ejemplo guiado · 75 min; cierre y trabajo autónomo · 30 min. Parte de la lista remota y los cuatro estados de la sesión 8. Este formulario todavía no envía datos a la API; la sesión 10 conectará Guardar con POST. Ejecuta primero los comandos desde la raíz de <code>taskflow</code>. Si el proyecto no compila, recupera el último commit funcional antes de avanzar.</p><pre data-language="shell"><code>flutter pub get
+flutter analyze
+flutter run</code></pre><p>Punto de control: abre la lista y el detalle de una tarea; ambos deben conservar el avance de la sesión anterior.</p></div></article><article class="lab-step"><div class="step-number">1</div><div><h3>Conceptos antes de programar</h3><div class="code-reading"><div><strong>Form</strong><span>Agrupa campos y permite validarlos juntos.</span></div><div><strong>GlobalKey&lt;FormState&gt;</strong><span>Identifica un formulario concreto y permite llamar a validate().</span></div><div><strong>TextFormField</strong><span>Campo de texto con validator: devuelve un mensaje si es inválido y null si es válido.</span></div><div><strong>TextEditingController</strong><span>Permite leer el texto. Se libera en dispose() para evitar recursos retenidos.</span></div><div><strong>StatefulWidget</strong><span>Mantiene controladores y la prioridad seleccionada mientras se edita.</span></div></div></div></article><article class="lab-step"><div class="step-number">2</div><div><h3>Crear la pantalla de formulario</h3><p>Crea <code>lib/features/tasks/presentation/task_form_screen.dart</code> y pega el archivo completo. Guardar solo devuelve los datos a la lista; no afirma haber creado un registro remoto.</p><pre data-language="dart"><code>import &#x27;package:flutter/material.dart&#x27;;
+import &#x27;package:go_router/go_router.dart&#x27;;
+
+class TaskDraft {
+  const TaskDraft(this.title, this.description, this.priority);
+  final String title;
+  final String description;
+  final String priority;
+}
+
+class TaskFormScreen extends StatefulWidget {
+  const TaskFormScreen({super.key});
+  @override
+  State&lt;TaskFormScreen&gt; createState() =&gt; _TaskFormScreenState();
+}
+
+class _TaskFormScreenState extends State&lt;TaskFormScreen&gt; {
+  final _formKey = GlobalKey&lt;FormState&gt;();
+  final _title = TextEditingController();
+  final _description = TextEditingController();
+  String _priority = &#x27;Media&#x27;;
+
+  @override
+  void dispose() {
+    _title.dispose();
+    _description.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    if (!_formKey.currentState!.validate()) return;
+    final draft = TaskDraft(
+      _title.text.trim(), _description.text.trim(), _priority,
+    );
+    context.pop(draft);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text(&#x27;Nueva tarea&#x27;)),
+      body: Form(
+        key: _formKey,
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            TextFormField(
+              controller: _title,
+              decoration: const InputDecoration(labelText: &#x27;Título&#x27;),
+              validator: (value) {
+                final title = value?.trim() ?? &#x27;&#x27;;
+                if (title.isEmpty) return &#x27;Escribe un título.&#x27;;
+                if (title.length &lt; 3) return &#x27;Usa al menos 3 caracteres.&#x27;;
+                return null;
+              },
+            ),
+            TextFormField(
+              controller: _description,
+              decoration: const InputDecoration(labelText: &#x27;Descripción&#x27;),
+              maxLines: 3,
+            ),
+            DropdownButtonFormField&lt;String&gt;(
+              initialValue: _priority,
+              decoration: const InputDecoration(labelText: &#x27;Prioridad&#x27;),
+              items: [&#x27;Alta&#x27;, &#x27;Media&#x27;, &#x27;Baja&#x27;]
+                  .map((value) =&gt; DropdownMenuItem(
+                        value: value, child: Text(value),
+                      ))
+                  .toList(),
+              onChanged: (value) =&gt; setState(() =&gt; _priority = value ?? &#x27;Media&#x27;),
+            ),
+            const SizedBox(height: 24),
+            FilledButton(onPressed: _submit, child: const Text(&#x27;Guardar&#x27;)),
+          ],
+        ),
+      ),
+    );
+  }
+}</code></pre><p>El borrador es un objeto temporal. <code>context.pop(draft)</code> entrega el resultado a la pantalla anterior; en la sesión 10 se usará para POST.</p></div></article><article class="lab-step"><div class="step-number">3</div><div><h3>Declarar la ruta</h3><p>En <code>lib/app/taskflow_app.dart</code>, importa <code>task_form_screen.dart</code> y agrega esta ruta a la lista <code>routes</code> de <code>GoRouter</code>, al mismo nivel que <code>/</code> y <code>/task/:id</code>.</p><pre data-language="dart"><code>GoRoute(
+  path: &#x27;/new&#x27;,
+  builder: (context, state) =&gt; const TaskFormScreen(),
+),</code></pre><p>No reemplaces las rutas anteriores: el detalle debe seguir funcionando.</p></div></article><article class="lab-step"><div class="step-number">4</div><div><h3>Abrir el formulario</h3><p>En <code>task_list_screen.dart</code>, agrega <code>floatingActionButton</code> dentro de <code>Scaffold</code>, junto a <code>appBar</code> y <code>body</code>.</p><pre data-language="dart"><code>floatingActionButton: FloatingActionButton.extended(
+  onPressed: () async {
+    final draft = await context.push&lt;TaskDraft&gt;(&#x27;/new&#x27;);
+    if (!context.mounted || draft == null) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(&#x27;Formulario válido: ${draft.title}&#x27;)),
+    );
+  },
+  icon: const Icon(Icons.add),
+  label: const Text(&#x27;Nueva tarea&#x27;),
+),</code></pre><p>Agrega también <code>import 'task_form_screen.dart';</code>. El mensaje verifica el retorno del borrador; no representa una creación remota.</p></div></article><aside class="challenge"><p class="eyebrow">TRABAJO AUTÓNOMO INCREMENTAL</p><h3>Aplicar en tu TaskFlow</h3><p><strong>Aplicar:</strong> Form, validación, controladores y selector. <strong>Avance:</strong> personaliza los mensajes y agrega una fecha opcional con <code>showDatePicker</code> sin exigirla para guardar. <strong>Evidencia:</strong> captura de errores de validación, formulario válido y mensaje de retorno.</p></aside><article class="lab-step"><div class="step-number">5</div><div><h3>Comprobar y subir el avance</h3><p>Prueba título vacío, de dos caracteres y válido. Comprueba que Cancelar regresa sin mensaje y que el detalle sigue abriendo.</p><pre data-language="shell"><code>dart format lib
+flutter analyze
+git status
+git add README.md lib test pubspec.yaml pubspec.lock
+git commit -m &quot;feat: agregar formulario de tareas&quot;
+git push origin main</code></pre><p>Si tu rama no se llama main, usa el nombre que muestra <code>git branch --show-current</code>. Comprueba el commit en GitHub; el ejemplo guiado no se versiona como evidencia aislada.</p></div></article><div class="common-errors"><h3>Errores frecuentes y primera acción</h3><dl><dt>El botón no aparece</dt><dd>Comprueba que <code>floatingActionButton</code> esté dentro de <code>Scaffold</code> y que importaste <code>TaskDraft</code>.</dd><dt>Ruta desconocida</dt><dd>Confirma que <code>/new</code> está en <code>GoRouter</code>.</dd><dt>El campo no valida</dt><dd>Llama a <code>_formKey.currentState!.validate()</code> antes de <code>context.pop</code>.</dd></dl></div><div class="finish-line"><h3>Resultado verificable</h3><p>TaskFlow valida título, descripción y prioridad antes de preparar una tarea nueva. La evidencia del avance autónomo debe estar en el repositorio remoto.</p></div></div></section></div></main><script src="syntax.js"></script></body></html>

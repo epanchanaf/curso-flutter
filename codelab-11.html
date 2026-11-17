@@ -1,0 +1,36 @@
+<!doctype html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Codelab 11 · Explicar errores y permitir recuperarse | Curso Flutter</title><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="codelab-navigation.css"></head><body class="codelab-page"><main class="container"><div class="codelab-content"><section class="codelab-section" id="codelab-11"><div class="container"><div class="codelab-title"><div class="session-badge">SESIÓN 11<br><span>3 HORAS</span></div><div><p class="eyebrow">CODELAB 11 · SEMANA 6</p><h2>Explicar errores y permitir recuperarse</h2><p>TaskFlow distingue fallos de conexión, espera agotada y respuestas del servidor.</p></div></div><div class="learning-box"><strong>Resultado observable:</strong> TaskFlow distingue fallos de conexión, espera agotada y respuestas del servidor.</div><article class="lab-step"><div class="step-number">0</div><div><h3>Preparar TaskFlow</h3><p>Inicio · 15 min; desarrollo y ejemplo guiado · 75 min; cierre y trabajo autónomo · 30 min. Parte del CRUD de la sesión 10. No cambies la estructura de carpetas ni hagas solicitudes HTTP desde widgets. Ejecuta primero los comandos desde la raíz de <code>taskflow</code>. Si el proyecto no compila, recupera el último commit funcional antes de avanzar.</p><pre data-language="shell"><code>flutter pub get
+flutter analyze
+flutter run</code></pre><p>Punto de control: abre la lista y el detalle de una tarea; ambos deben conservar el avance de la sesión anterior.</p></div></article><article class="lab-step"><div class="step-number">1</div><div><h3>Conceptos antes de programar</h3><div class="code-reading"><div><strong>DioException</strong><span>Error del cliente HTTP; su tipo y response ayudan a distinguir red y servidor.</span></div><div><strong>Timeout</strong><span>La conexión o respuesta tardó más del límite configurado.</span></div><div><strong>4xx / 5xx</strong><span>Respuesta HTTP recibida: solicitud inválida o fallo del servidor.</span></div><div><strong>Excepción de dominio</strong><span>Mensaje propio del proyecto que oculta detalles técnicos a la vista.</span></div><div><strong>Reintento</strong><span>Repetir una acción solo cuando sea seguro; repetir POST puede duplicar una creación.</span></div></div></div></article><article class="lab-step"><div class="step-number">2</div><div><h3>Crear una excepción comprensible</h3><p>Crea <code>lib/core/task_failure.dart</code>.</p><pre data-language="dart"><code>class TaskFailure implements Exception {
+  const TaskFailure(this.message);
+  final String message;
+  @override
+  String toString() =&gt; message;
+}</code></pre><p>El usuario ve <code>message</code>; el código técnico permanece en la consola.</p></div></article><article class="lab-step"><div class="step-number">3</div><div><h3>Traducir errores en Repository</h3><p>En <code>RemoteTaskRepository</code>, importa <code>package:dio/dio.dart</code> y <code>../../../core/task_failure.dart</code>. Envuelve la llamada de <code>getTasks</code> y conserva la actualización de <code>_tasks</code> tras una respuesta válida.</p><pre data-language="dart"><code>try {
+  _tasks = await _apiService.getTasks();
+  return List.unmodifiable(_tasks);
+} on DioException catch (error) {
+  if (error.type == DioExceptionType.connectionTimeout ||
+      error.type == DioExceptionType.receiveTimeout) {
+    throw const TaskFailure(&#x27;El servidor tardó demasiado.&#x27;);
+  }
+  if (error.response?.statusCode != null) {
+    throw TaskFailure(&#x27;La API respondió con HTTP ${error.response!.statusCode}.&#x27;);
+  }
+  throw const TaskFailure(&#x27;Revisa tu conexión a internet.&#x27;);
+} on FormatException {
+  throw const TaskFailure(&#x27;La API devolvió datos inesperados.&#x27;);
+}</code></pre><p>La ruta relativa sube desde <code>features/tasks/data</code> a <code>lib/core</code>. No muestres <code>error.toString()</code> directamente en la pantalla.</p></div></article><article class="lab-step"><div class="step-number">4</div><div><h3>Mostrar el mensaje y evitar envíos repetidos</h3><p>En <code>TasksViewModel.loadTasks</code>, cambia el <code>catch</code> genérico por este bloque y conserva <code>finally</code>. Para crear, editar y eliminar, usa una bandera <code>isSaving</code> y deshabilita Guardar mientras sea <code>true</code>.</p><pre data-language="dart"><code>on TaskFailure catch (failure) {
+  _tasks = [];
+  errorMessage = failure.message;
+} catch (error) {
+  _tasks = [];
+  errorMessage = &#x27;Ocurrió un problema inesperado.&#x27;;
+  debugPrint(&#x27;Error inesperado: $error&#x27;);
+}</code></pre><p>Importa <code>TaskFailure</code> en el ViewModel. La vista de la sesión 8 ya muestra <code>errorMessage</code> y Reintentar.</p></div></article><article class="lab-step"><div class="step-number">5</div><div><h3>Simular dos fallos</h3><p>Desactiva internet y pulsa Actualizar. Después restaura la conexión y cambia temporalmente la ruta <code>/todos</code> por <code>/ruta-inexistente</code> en el Service. Comprueba mensajes diferentes y restaura la ruta.</p><pre data-language="shell"><code>dart format lib
+flutter analyze
+flutter run</code></pre><p>No dejes la ruta de prueba ni un error provocado en el commit.</p></div></article><aside class="challenge"><p class="eyebrow">TRABAJO AUTÓNOMO INCREMENTAL</p><h3>Aplicar en tu TaskFlow</h3><p><strong>Aplicar:</strong> excepciones, mensajes útiles y control de envíos. <strong>Avance:</strong> distingue error de red y respuesta HTTP; deshabilita Guardar mientras espera y ofrece reintento de carga. <strong>Evidencia:</strong> capturas de dos errores y recuperación.</p></aside><article class="lab-step"><div class="step-number">6</div><div><h3>Comprobar y subir el avance</h3><p>Verifica que ninguna pantalla quede en espera permanente y que las acciones no se dupliquen al tocar rápido.</p><pre data-language="shell"><code>dart format lib
+flutter analyze
+git status
+git add README.md lib test pubspec.yaml pubspec.lock
+git commit -m &quot;feat: mejorar manejo de errores&quot;
+git push origin main</code></pre><p>Si tu rama no se llama main, usa el nombre que muestra <code>git branch --show-current</code>. Comprueba el commit en GitHub; el ejemplo guiado no se versiona como evidencia aislada.</p></div></article><div class="common-errors"><h3>Errores frecuentes y primera acción</h3><dl><dt>Import inexistente</dt><dd>Comprueba la ruta relativa de <code>core/task_failure.dart</code>.</dd><dt>El error siempre es genérico</dt><dd>Revisa el orden de los bloques <code>on TaskFailure</code> y <code>catch</code>.</dd><dt>POST duplicado</dt><dd>Deshabilita Guardar al iniciar la solicitud y vuelve a habilitarlo en <code>finally</code>.</dd></dl></div><div class="finish-line"><h3>Resultado verificable</h3><p>TaskFlow distingue fallos de conexión, espera agotada y respuestas del servidor. La evidencia del avance autónomo debe estar en el repositorio remoto.</p></div></div></section></div></main><script src="syntax.js"></script></body></html>

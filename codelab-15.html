@@ -1,0 +1,38 @@
+<!doctype html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Codelab 15 · Preparar documentación y calidad | Curso Flutter</title><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="codelab-navigation.css"></head><body class="codelab-page"><main class="container"><div class="codelab-content"><section class="codelab-section" id="codelab-15"><div class="container"><div class="codelab-title"><div class="session-badge">SESIÓN 15<br><span>3 HORAS</span></div><div><p class="eyebrow">CODELAB 15 · SEMANA 8</p><h2>Preparar documentación y calidad</h2><p>Otra persona puede instalar, ejecutar y comprender TaskFlow leyendo su repositorio.</p></div></div><div class="learning-box"><strong>Resultado observable:</strong> Otra persona puede instalar, ejecutar y comprender TaskFlow leyendo su repositorio.</div><article class="lab-step"><div class="step-number">0</div><div><h3>Preparar TaskFlow</h3><p>Inicio · 15 min; desarrollo y ejemplo guiado · 75 min; cierre y trabajo autónomo · 30 min. Parte de todas las funcionalidades anteriores. Recupera el README real de tu proyecto y verifica los flujos antes de refactorizar. Ejecuta primero los comandos desde la raíz de <code>taskflow</code>. Si el proyecto no compila, recupera el último commit funcional antes de avanzar.</p><pre data-language="shell"><code>flutter pub get
+flutter analyze
+flutter run</code></pre><p>Punto de control: abre la lista y el detalle de una tarea; ambos deben conservar el avance de la sesión anterior.</p></div></article><article class="lab-step"><div class="step-number">1</div><div><h3>Conceptos antes de programar</h3><div class="code-reading"><div><strong>Refactorizar</strong><span>Ordenar código sin cambiar su comportamiento observable.</span></div><div><strong>Análisis estático</strong><span>flutter analyze detecta problemas sin ejecutar la app.</span></div><div><strong>Prueba repetible</strong><span>flutter test comprueba reglas de forma automática.</span></div><div><strong>README</strong><span>Documento de entrada que explica propósito, instalación, arquitectura, API y limitaciones.</span></div></div></div></article><article class="lab-step"><div class="step-number">2</div><div><h3>Crear la lista de verificación</h3><p>Revisa uno por uno: inicio, lista, detalle, formulario, CRUD, error, búsqueda y configuración. Marca como pendiente lo que no funciona y resuelve primero los flujos esenciales.</p><pre data-language="text"><code>[ ] La app inicia y consulta la API
+[ ] Lista y detalle muestran la tarea correcta
+[ ] Crear, editar y eliminar muestran éxito o error
+[ ] Reintentar recupera una carga fallida
+[ ] Filtros y preferencias funcionan
+[ ] flutter analyze y flutter test terminan bien</code></pre><p>No afirmes en el README que JSONPlaceholder guarda cambios permanentes.</p></div></article><article class="lab-step"><div class="step-number">3</div><div><h3>Ordenar el código</h3><p>Ejecuta estas comprobaciones. Corrige cada error mostrado antes de compilar el APK.</p><pre data-language="shell"><code>dart format lib test
+flutter analyze
+flutter test</code></pre><p>El formato modifica espacios y saltos de línea; el analizador detecta imports, tipos y usos incorrectos.</p></div></article><article class="lab-step"><div class="step-number">4</div><div><h3>Completar el README</h3><p>En el README de TaskFlow, conserva lo existente y agrega estas secciones con datos reales de tu proyecto.</p><pre data-language="text"><code>## TaskFlow
+Problema y usuario objetivo.
+
+## Requisitos
+Flutter SDK, Android SDK y un emulador o teléfono.
+
+## Instalación
+flutter pub get
+flutter run
+
+## Arquitectura
+View → ViewModel → Repository → TaskApiService → API.
+
+## API y limitaciones
+URL, endpoints, campos JSON y qué cambios son simulados.
+
+## Pruebas
+flutter analyze
+flutter test
+
+## Capturas
+Lista, detalle, formulario y manejo de errores.</code></pre><p>Explica los nombres de archivos y rutas para que otra persona sepa dónde empezar.</p></div></article><article class="lab-step"><div class="step-number">5</div><div><h3>Revisión por pares</h3><p>Pide a otra persona que siga solo el README para ejecutar la app. Anota cada paso que requiera explicación oral y corrige el documento.</p><pre data-language="shell"><code>git diff --check
+git status</code></pre><p>No añadas claves, tokens, contraseñas ni archivos de configuración privados al repositorio.</p></div></article><aside class="challenge"><p class="eyebrow">TRABAJO AUTÓNOMO INCREMENTAL</p><h3>Aplicar en tu TaskFlow</h3><p><strong>Aplicar:</strong> formato, análisis, pruebas y documentación. <strong>Avance:</strong> deja el proyecto instalable por otra persona, con capturas, arquitectura, API y limitaciones conocidas. <strong>Evidencia:</strong> README y salida de las comprobaciones.</p></aside><article class="lab-step"><div class="step-number">6</div><div><h3>Comprobar y subir el avance</h3><p>Comprueba que todas las afirmaciones del README coinciden con la app real. Revisa el diff antes de crear el commit.</p><pre data-language="shell"><code>dart format lib
+flutter analyze
+flutter test
+git status
+git add README.md lib test pubspec.yaml pubspec.lock
+git commit -m &quot;docs: preparar documentación de entrega&quot;
+git push origin main</code></pre><p>Si tu rama no se llama main, usa el nombre que muestra <code>git branch --show-current</code>. Comprueba el commit en GitHub; el ejemplo guiado no se versiona como evidencia aislada.</p></div></article><div class="common-errors"><h3>Errores frecuentes y primera acción</h3><dl><dt>README incompleto</dt><dd>Pide a una persona que siga la instalación sin instrucciones adicionales.</dd><dt>flutter analyze falla</dt><dd>Abre la primera ruta y línea señaladas; corrige antes de continuar.</dd><dt>Una prueba falla</dt><dd>Relaciona el fallo con el comportamiento esperado y corrige el código o la prueba.</dd></dl></div><div class="finish-line"><h3>Resultado verificable</h3><p>Otra persona puede instalar, ejecutar y comprender TaskFlow leyendo su repositorio. La evidencia del avance autónomo debe estar en el repositorio remoto.</p></div></div></section></div></main><script src="syntax.js"></script></body></html>

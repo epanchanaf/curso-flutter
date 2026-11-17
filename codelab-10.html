@@ -1,0 +1,169 @@
+<!doctype html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Codelab 10 · Enviar cambios con POST, PATCH y DELETE | Curso Flutter</title><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="codelab-navigation.css"></head><body class="codelab-page"><main class="container"><div class="codelab-content"><section class="codelab-section" id="codelab-10"><div class="container"><div class="codelab-title"><div class="session-badge">SESIÓN 10<br><span>2 HORAS</span></div><div><p class="eyebrow">CODELAB 10 · SEMANA 5</p><h2>Enviar cambios con POST, PATCH y DELETE</h2><p>TaskFlow realiza las tres operaciones HTTP y actualiza su lista tras cada respuesta.</p></div></div><div class="learning-box"><strong>Resultado observable:</strong> TaskFlow realiza las tres operaciones HTTP y actualiza su lista tras cada respuesta.</div><article class="lab-step"><div class="step-number">0</div><div><h3>Preparar TaskFlow</h3><p>Inicio · 15 min; desarrollo y ejemplo guiado · 75 min; cierre y trabajo autónomo · 30 min. Parte del TaskDraft y la ruta /new de la sesión 9. JSONPlaceholder simula las escrituras: las respuestas son útiles para practicar, pero una nueva consulta no conserva esos cambios. Ejecuta primero los comandos desde la raíz de <code>taskflow</code>. Si el proyecto no compila, recupera el último commit funcional antes de avanzar.</p><pre data-language="shell"><code>flutter pub get
+flutter analyze
+flutter run</code></pre><p>Punto de control: abre la lista y el detalle de una tarea; ambos deben conservar el avance de la sesión anterior.</p></div></article><article class="lab-step"><div class="step-number">1</div><div><h3>Conceptos antes de programar</h3><div class="code-reading"><div><strong>CRUD</strong><span>Crear, leer, actualizar y eliminar datos: POST, GET, PATCH y DELETE.</span></div><div><strong>Cuerpo JSON</strong><span>Mapa enviado al servidor con los campos que la API espera.</span></div><div><strong>SnackBar</strong><span>Aviso breve que aparece tras una acción.</span></div><div><strong>Confirmación</strong><span>Diálogo que pide una decisión antes de eliminar.</span></div><div><strong>Persistencia simulada</strong><span>JSONPlaceholder responde como si escribiera, pero no guarda el cambio para la próxima consulta.</span></div></div></div></article><article class="lab-step"><div class="step-number">2</div><div><h3>Agregar operaciones al Service</h3><p>En <code>task_api_service.dart</code>, coloca estos métodos dentro de <code>TaskApiService</code>, después de <code>getTasks</code>. La API de práctica solo conoce <code>title</code>, <code>completed</code> y <code>userId</code>; descripción y prioridad siguen siendo locales.</p><pre data-language="dart"><code>Future&lt;Task&gt; createTask(String title) async {
+  final response = await _dio.post&lt;Map&lt;String, dynamic&gt;&gt;(
+    &#x27;/todos&#x27;,
+    data: {&#x27;title&#x27;: title, &#x27;completed&#x27;: false, &#x27;userId&#x27;: userId},
+  );
+  final json = response.data;
+  if (json == null) throw const FormatException(&#x27;Respuesta vacía.&#x27;);
+  return Task.fromJson(json);
+}
+
+Future&lt;void&gt; updateTask(Task task) async {
+  await _dio.patch(
+    &#x27;/todos/${task.id}&#x27;,
+    data: {&#x27;title&#x27;: task.title, &#x27;completed&#x27;: task.isCompleted},
+  );
+}
+
+Future&lt;void&gt; deleteTask(int id) async {
+  await _dio.delete(&#x27;/todos/$id&#x27;);
+}</code></pre><p><code>await</code> espera la respuesta; si Dio lanza una excepción, no se debe anunciar éxito.</p></div></article><article class="lab-step"><div class="step-number">3</div><div><h3>Extender el contrato y Repository</h3><p>Agrega las tres firmas al final de <code>TaskRepository</code>. Luego implementa los métodos en <code>RemoteTaskRepository</code>. El repositorio conserva cambios locales hasta la próxima recarga; adapta también <code>LocalTaskRepository</code> si lo mantienes en el proyecto.</p><pre data-language="dart"><code>// Dentro de TaskRepository:
+Future&lt;Task&gt; createTask(String title, String description, String priority);
+Future&lt;void&gt; updateTask(Task task);
+Future&lt;void&gt; deleteTask(int id);
+
+// Dentro de RemoteTaskRepository:
+@override
+Future&lt;Task&gt; createTask(
+  String title, String description, String priority,
+) async {
+  final response = await _apiService.createTask(title);
+  final task = Task(
+    id: response.id, title: title, description: description,
+    priority: priority, isCompleted: false, userId: response.userId,
+  );
+  _tasks = [..._tasks, task];
+  return task;
+}
+
+@override
+Future&lt;void&gt; updateTask(Task task) async {
+  await _apiService.updateTask(task);
+  save(task);
+}
+
+@override
+Future&lt;void&gt; deleteTask(int id) async {
+  await _apiService.deleteTask(id);
+  _tasks = _tasks.where((task) =&gt; task.id != id).toList();
+}</code></pre><p>Los bloques están etiquetados por clase: pega cada grupo en el archivo correspondiente, dentro de la clase y antes de su llave final.</p></div></article><article class="lab-step"><div class="step-number">4A</div><div><h3>Mantener el Repository local compilable</h3><p>Como <code>LocalTaskRepository</code> también implementa <code>TaskRepository</code>, agrega estos métodos dentro de esa clase. Conserva los cinco objetos originales y sus métodos <code>getTasks</code> y <code>save</code>.</p><pre data-language="dart"><code>@override
+Future&lt;Task&gt; createTask(
+  String title, String description, String priority,
+) async {
+  final nextId = _tasks.isEmpty ? 1 :
+      _tasks.map((task) =&gt; task.id).reduce((a, b) =&gt; a &gt; b ? a : b) + 1;
+  final task = Task(
+    id: nextId, title: title, description: description,
+    priority: priority, isCompleted: false, userId: 1,
+  );
+  _tasks.add(task);
+  return task;
+}
+
+@override
+Future&lt;void&gt; updateTask(Task task) async =&gt; save(task);
+
+@override
+Future&lt;void&gt; deleteTask(int id) async {
+  _tasks.removeWhere((task) =&gt; task.id == id);
+}</code></pre><p>Así el archivo local sigue siendo una implementación válida del contrato, aunque <code>main.dart</code> utilice el remoto.</p></div></article><article class="lab-step"><div class="step-number">4</div><div><h3>Conectar el formulario</h3><p>En <code>TasksViewModel</code>, añade este método. En el callback del botón Nueva tarea de la sesión 9, sustituye el SnackBar de “Formulario válido” por una llamada a <code>createTask</code> dentro de <code>try/catch</code>.</p><pre data-language="dart"><code>Future&lt;void&gt; createTask(
+  String title, String description, String priority,
+) async {
+  final created = await _repository.createTask(title, description, priority);
+  _tasks = [..._tasks, created];
+  notifyListeners();
+}
+
+Future&lt;void&gt; updateTask(Task task) async {
+  await _repository.updateTask(task);
+  _tasks = [for (final item in _tasks) if (item.id == task.id) task else item];
+  notifyListeners();
+}
+
+Future&lt;void&gt; deleteTask(int id) async {
+  await _repository.deleteTask(id);
+  _tasks = _tasks.where((task) =&gt; task.id != id).toList();
+  notifyListeners();
+}</code></pre><p>En el callback de Nueva tarea de <code>task_list_screen.dart</code>, después de comprobar que <code>draft</code> no es nulo y que <code>context.mounted</code>, reemplaza el SnackBar temporal de la sesión 9 por este bloque:<pre data-language="dart"><code>try {
+  await context.read&lt;TasksViewModel&gt;().createTask(
+    draft.title, draft.description, draft.priority,
+  );
+  if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text(&#x27;Tarea creada&#x27;)),
+  );
+} catch (_) {
+  if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text(&#x27;No se pudo crear la tarea&#x27;)),
+  );
+}</code></pre>Solo muestra éxito después de <code>await</code>. El ViewModel agrega la tarea a la lista cuando el Repository confirma la operación.</p></div></article><article class="lab-step"><div class="step-number">5</div><div><h3>Editar y eliminar con confirmación</h3><p>En el detalle, llama a <code>updateTask</code> con una copia de la tarea después de editar el título. Antes de borrar, usa este diálogo; solo si devuelve <code>true</code> llama al repositorio y vuelve a la lista.</p><pre data-language="dart"><code>final confirmed = await showDialog&lt;bool&gt;(
+  context: context,
+  builder: (dialogContext) =&gt; AlertDialog(
+    title: const Text(&#x27;Eliminar tarea&#x27;),
+    content: Text(&#x27;¿Eliminar ${task.title}?&#x27;),
+    actions: [
+      TextButton(onPressed: () =&gt; Navigator.pop(dialogContext, false),
+        child: const Text(&#x27;Cancelar&#x27;)),
+      FilledButton(onPressed: () =&gt; Navigator.pop(dialogContext, true),
+        child: const Text(&#x27;Eliminar&#x27;)),
+    ],
+  ),
+);
+if (confirmed != true || !context.mounted) return;
+try {
+  await context.read&lt;TasksViewModel&gt;().deleteTask(task.id);
+  if (context.mounted) context.pop();
+} catch (_) {
+  if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text(&#x27;No se pudo eliminar la tarea&#x27;)),
+  );
+}</code></pre><p>Los métodos <code>updateTask</code> y <code>deleteTask</code> del ViewModel están completos en el paso anterior. Para editar, amplía <code>Task.copyWith</code> para aceptar <code>String? title</code> y usa <code>title: title ?? this.title</code> al crear la copia. Después llama a <code>updateTask(task.copyWith(title: nuevoTitulo))</code>.</p></div></article><article class="lab-step"><div class="step-number">5A</div><div><h3>Editar el título desde el detalle</h3><p>En <code>task_detail_screen.dart</code>, importa <code>package:provider/provider.dart</code> si falta. Agrega un botón dentro de la lista de widgets del detalle. Este callback abre un diálogo, valida el título y solo actualiza la vista tras una respuesta HTTP correcta. Antes, en <code>domain/task.dart</code>, reemplaza el método <code>copyWith</code> completo por el siguiente. Conserva los demás miembros de <code>Task</code>.</p><pre data-language="dart"><code>Task copyWith({String? title, bool? isCompleted}) {
+  return Task(
+    id: id,
+    title: title ?? this.title,
+    description: description,
+    priority: priority,
+    isCompleted: isCompleted ?? this.isCompleted,
+    userId: userId,
+  );
+}</code></pre><pre data-language="dart"><code>ElevatedButton(
+  onPressed: () async {
+    final controller = TextEditingController(text: task.title);
+    final newTitle = await showDialog&lt;String&gt;(
+      context: context,
+      builder: (dialogContext) =&gt; AlertDialog(
+        title: const Text(&#x27;Editar título&#x27;),
+        content: TextField(controller: controller,
+          decoration: const InputDecoration(labelText: &#x27;Título&#x27;)),
+        actions: [
+          TextButton(onPressed: () =&gt; Navigator.pop(dialogContext),
+            child: const Text(&#x27;Cancelar&#x27;)),
+          FilledButton(onPressed: () =&gt; Navigator.pop(
+              dialogContext, controller.text.trim()),
+            child: const Text(&#x27;Guardar&#x27;)),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (!context.mounted || newTitle == null || newTitle.length &lt; 3) return;
+    try {
+      await context.read&lt;TasksViewModel&gt;().updateTask(
+        task.copyWith(title: newTitle),
+      );
+      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text(&#x27;Tarea actualizada&#x27;)),
+      );
+    } catch (_) {
+      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text(&#x27;No se pudo actualizar&#x27;)),
+      );
+    }
+  },
+  child: const Text(&#x27;Editar título&#x27;),
+),</code></pre><p>El diálogo devuelve <code>null</code> al cancelar. El botón solo muestra éxito después de <code>await</code>. La API de práctica simula el cambio.</p></div></article><aside class="challenge"><p class="eyebrow">TRABAJO AUTÓNOMO INCREMENTAL</p><h3>Aplicar en tu TaskFlow</h3><p><strong>Aplicar:</strong> POST, PATCH, DELETE, toJson o mapa JSON, SnackBar y diálogo. <strong>Avance:</strong> completa el flujo crear, editar y eliminar en tu TaskFlow. <strong>Evidencia:</strong> capturas antes y después de cada operación y anotación en README de que JSONPlaceholder simula escrituras.</p></aside><article class="lab-step"><div class="step-number">6</div><div><h3>Comprobar y subir el avance</h3><p>Prueba crear, cambiar un título y cancelar/eliminar una tarea. Verifica que un error no muestre un mensaje de éxito. Reinicia para observar la limitación de la API simulada.</p><pre data-language="shell"><code>dart format lib
+flutter analyze
+git status
+git add README.md lib test pubspec.yaml pubspec.lock
+git commit -m &quot;feat: completar CRUD de tareas&quot;
+git push origin main</code></pre><p>Si tu rama no se llama main, usa el nombre que muestra <code>git branch --show-current</code>. Comprueba el commit en GitHub; el ejemplo guiado no se versiona como evidencia aislada.</p></div></article><div class="common-errors"><h3>Errores frecuentes y primera acción</h3><dl><dt>El repositorio local no compila</dt><dd>Al ampliar <code>TaskRepository</code>, implementa las nuevas firmas en <code>LocalTaskRepository</code> o retira esa implementación si ya no se utiliza.</dd><dt>La tarea reaparece</dt><dd>JSONPlaceholder no persiste escrituras; la próxima consulta trae los datos originales.</dd><dt>Se anuncia éxito tras un fallo</dt><dd>Coloca el SnackBar de éxito después del <code>await</code>, no antes.</dd></dl></div><div class="finish-line"><h3>Resultado verificable</h3><p>TaskFlow realiza las tres operaciones HTTP y actualiza su lista tras cada respuesta. La evidencia del avance autónomo debe estar en el repositorio remoto.</p></div></div></section></div></main><script src="syntax.js"></script></body></html>

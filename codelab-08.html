@@ -1,0 +1,162 @@
+<!doctype html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Codelab 08 · Estados asíncronos | Curso Flutter</title><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="codelab-navigation.css"></head><body class="codelab-page"><main class="container"><div class="codelab-content"><section class="codelab-section" id="codelab-8"><div class="container">
+<div class="codelab-title"><div class="session-badge">SESIÓN 8<br><span>2 HORAS</span></div><div><p class="eyebrow">CODELAB 08 · SEMANA 4</p><h2>Mostrar carga, datos, vacío y error</h2><p>Completarás la experiencia de la lista remota creada en la sesión 7 y agregarás un botón Reintentar.</p></div></div>
+<div class="learning-box"><strong>Resultado observable:</strong> TaskFlow distingue cuatro situaciones: espera de la red, tareas disponibles, respuesta vacía y fallo. Un usuario puede repetir la consulta sin reiniciar la aplicación.</div>
+<article class="lab-step"><div class="step-number">0</div><div><h3>Preparación y tiempos · 120 minutos</h3><div class="code-reading"><div><strong>Inicio · 0–15 min</strong><span>Ejecutar la sesión 7 y seguir el recorrido Service → Repository → ViewModel → View.</span></div><div><strong>Desarrollo · 15–80 min</strong><span>Definir estados, actualizar ViewModel y construir la pantalla para cada resultado.</span></div><div><strong>Práctica acompañada · 80–100 min</strong><span>Probar éxito, vacío, error y reintento con condiciones controladas.</span></div><div><strong>Cierre y trabajo autónomo · 100–120 min</strong><span>Verificar el proyecto propio y subir el avance.</span></div></div><p>Abre <code>taskflow</code> de la sesión 7. Deben existir <code>task_api_service.dart</code>, <code>remote_task_repository.dart</code> y <code>tasks_view_model.dart</code>. Comprueba primero que la lista remota abre el detalle. Conserva los archivos de modelo, servicio, repositorio, rutas y detalle: esta sesión modifica solamente ViewModel y lista.</p><pre data-language="shell"><code>flutter pub get
+flutter analyze
+flutter run</code></pre></div></article>
+<article class="lab-step"><div class="step-number">1</div><div><h3>Inicio · reconocer los cuatro estados</h3><p>Una operación <strong>asíncrona</strong> tarda un tiempo desconocido. Durante ese tiempo, la interfaz necesita un <strong>estado</strong>: información que indica qué debe dibujarse. <code>ChangeNotifier</code> avisa cuando cambia el estado y <code>context.watch</code> reconstruye la pantalla. El Repository sigue ocultando el origen de los datos y el Service sigue siendo el único que conoce Dio.</p><div class="code-reading"><div><strong>Carga</strong><span>La petición sigue pendiente. Se muestra un indicador y se evita repetirla varias veces.</span></div><div><strong>Éxito</strong><span>La respuesta contiene tareas. Se dibuja una tarjeta por cada <code>Task</code>.</span></div><div><strong>Vacío</strong><span>La petición terminó bien, pero la lista contiene cero tareas. Se muestra un mensaje y una acción para actualizar.</span></div><div><strong>Error</strong><span>La petición falló por red, servidor o formato. Se muestra un mensaje comprensible y Reintentar.</span></div></div><p><strong>Regla:</strong> vacío y error son distintos. Una lista vacía es una respuesta válida; un error significa que no sabemos qué tareas hay. El detalle y la acción local de marcar completada seguirán funcionando como en la sesión 7.</p></div></article>
+<article class="lab-step"><div class="step-number">2</div><div><h3>Desarrollo A · completar el ViewModel</h3><p>Reemplaza <strong>todo</strong> <code>lib/features/tasks/presentation/tasks_view_model.dart</code> por este archivo. <code>loadTasks()</code> servirá tanto para la primera carga como para Reintentar y Actualizar. <code>errorMessage</code> se limpia antes de cada intento. El <code>catch</code> guarda un mensaje para la vista y la excepción técnica se deja en la consola para diagnóstico.</p><pre data-language="dart"><code>import 'package:flutter/foundation.dart';
+
+import '../data/task_repository.dart';
+import '../domain/task.dart';
+
+class TasksViewModel extends ChangeNotifier {
+  TasksViewModel(this._repository);
+
+  final TaskRepository _repository;
+  List&lt;Task&gt; _tasks = [];
+  bool isLoading = false;
+  String? errorMessage;
+
+  List&lt;Task&gt; get tasks =&gt; List.unmodifiable(_tasks);
+  bool get isEmpty =&gt; !isLoading &amp;&amp; errorMessage == null &amp;&amp; _tasks.isEmpty;
+
+  Future&lt;void&gt; loadTasks() async {
+    if (isLoading) return;
+    isLoading = true;
+    errorMessage = null;
+    notifyListeners();
+
+    try {
+      _tasks = await _repository.getTasks();
+    } catch (error) {
+      _tasks = [];
+      errorMessage = 'No se pudieron cargar las tareas.';
+      debugPrint('Error al cargar tareas: $error');
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Task? findTask(int? id) {
+    if (id == null) return null;
+    for (final task in _tasks) {
+      if (task.id == id) return task;
+    }
+    return null;
+  }
+
+  void toggleCompleted(int id) {
+    final current = findTask(id);
+    if (current == null) return;
+    final updated = current.copyWith(isCompleted: !current.isCompleted);
+    _repository.save(updated);
+    _tasks = [
+      for (final task in _tasks) if (task.id == id) updated else task,
+    ];
+    notifyListeners();
+  }
+}</code></pre><div class="explain"><strong>Cómo leerlo:</strong> <code>Future&lt;void&gt;</code> indica que la operación termina más tarde y no devuelve un dato. <code>if (isLoading) return</code> evita dos solicitudes simultáneas. <code>try</code> intenta cargar; <code>catch</code> maneja el fallo; <code>finally</code> termina la carga en ambos casos. <code>notifyListeners()</code> pide a las vistas suscritas que se reconstruyan.</div></div></article>
+<article class="lab-step"><div class="step-number">3</div><div><h3>Desarrollo B · construir la lista con acciones</h3><p>Reemplaza <strong>todo</strong> <code>lib/features/tasks/presentation/task_list_screen.dart</code>. <code>context.watch</code> lee el estado para dibujar. <code>context.read</code> ejecuta una acción desde el botón sin crear una escucha adicional. <code>RefreshIndicator</code> permite actualizar deslizando hacia abajo.</p><pre data-language="dart"><code>import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+
+import 'tasks_view_model.dart';
+
+class TaskListScreen extends StatelessWidget {
+  const TaskListScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final viewModel = context.watch&lt;TasksViewModel&gt;();
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Mis tareas'),
+        actions: [
+          IconButton(
+            tooltip: 'Actualizar tareas',
+            onPressed: viewModel.isLoading
+                ? null
+                : () =&gt; context.read&lt;TasksViewModel&gt;().loadTasks(),
+            icon: const Icon(Icons.refresh),
+          ),
+        ],
+      ),
+      body: _buildBody(context, viewModel),
+    );
+  }
+
+  Widget _buildBody(BuildContext context, TasksViewModel viewModel) {
+    if (viewModel.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (viewModel.errorMessage != null) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(viewModel.errorMessage!),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: () =&gt; context.read&lt;TasksViewModel&gt;().loadTasks(),
+              child: const Text('Reintentar'),
+            ),
+          ],
+        ),
+      );
+    }
+    if (viewModel.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text('Todavía no hay tareas para mostrar.'),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: () =&gt; context.read&lt;TasksViewModel&gt;().loadTasks(),
+              child: const Text('Actualizar'),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: () =&gt; context.read&lt;TasksViewModel&gt;().loadTasks(),
+      child: ListView.builder(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(16),
+        itemCount: viewModel.tasks.length,
+        itemBuilder: (context, index) {
+          final task = viewModel.tasks[index];
+          return Card(
+            child: ListTile(
+              leading: Icon(task.isCompleted
+                  ? Icons.check_circle
+                  : Icons.radio_button_unchecked),
+              title: Text(task.title),
+              subtitle: Text('Prioridad: ${task.priority}'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () =&gt; context.push('/task/${task.id}'),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}</code></pre><p><strong>Punto de control:</strong> con internet verás las tareas remotas. El botón de la barra y el gesto de deslizar vuelven a pedir datos. Una actualización vuelve a leer el servidor; por eso una marca local de completada puede desaparecer, como se explicó en la sesión 7.</p></div></article>
+<article class="lab-step"><div class="step-number">4</div><div><h3>Práctica acompañada · verificar cada caso</h3><p>Guarda los archivos y ejecuta:</p><pre data-language="shell"><code>dart format lib
+flutter analyze
+flutter run</code></pre><ol class="numbered"><li><strong>Éxito:</strong> con internet, abre una tarea y vuelve. El título y el id deben corresponder al elemento tocado.</li><li><strong>Error y reintento:</strong> desactiva internet del emulador, pulsa Actualizar y espera el mensaje. Reactiva internet y pulsa Reintentar; la lista debe volver sin reiniciar TaskFlow.</li><li><strong>Vacío:</strong> en <code>TaskApiService</code>, cambia temporalmente la constante <code>userId</code> por <code>9999</code>, reinicia la app y comprueba el mensaje “Todavía no hay tareas”. Restaura tu valor válido al terminar.</li><li><strong>Carga:</strong> observa el indicador durante la petición. Si la red responde demasiado rápido, usa la limitación de red del emulador; no agregues una espera artificial al código final.</li></ol><p>El botón Reintentar solo aparece después de un error; Actualizar aparece cuando la respuesta fue válida pero no contiene tareas. Esta diferencia es la evidencia central de la sesión.</p></div></article>
+<aside class="challenge"><p class="eyebrow">TRABAJO AUTÓNOMO INCREMENTAL · 20 MIN</p><h3>Completar los estados de tu TaskFlow</h3><p><strong>Aplicar:</strong> estado asíncrono, <code>ChangeNotifier</code>, <code>context.watch</code> y <code>context.read</code>. <strong>Avance:</strong> adapta los mensajes y las acciones de carga, éxito, vacío y error a tu interfaz; conserva la lista remota, el detalle y el reintento. <strong>Evidencia:</strong> capturas de lista, vacío y error; demuestra que Reintentar recupera la lista sin reiniciar la app. Documenta en el README cómo provocaste cada estado.</p></aside>
+<article class="lab-step"><div class="step-number">5</div><div><h3>Cierre · comprobar y subir el avance autónomo</h3><p>Confirma que <code>userId</code> volvió a un valor válido y que el detalle sigue abriendo la tarea correcta. Desde la raíz de <code>taskflow</code>, ejecuta:</p><pre data-language="shell"><code>dart format lib
+flutter analyze
+git status
+git add README.md lib/features/tasks/presentation
+git commit -m "feat: mostrar estados de carga y error en tareas"
+git push origin main</code></pre><p>Si tu rama no se llama <code>main</code>, usa el nombre que muestra <code>git branch --show-current</code>. Comprueba que el commit aparece en el repositorio remoto.</p></div></article>
+<div class="common-errors"><h3>Errores frecuentes</h3><dl><dt>El indicador no desaparece</dt><dd>Comprueba que <code>isLoading = false</code> y <code>notifyListeners()</code> estén dentro de <code>finally</code>.</dd><dt>Reintentar no hace nada</dt><dd>Verifica que el botón llame a <code>loadTasks()</code> mediante <code>context.read</code> y que el emulador tenga internet.</dd><dt>El vacío aparece como error</dt><dd>Comprueba que la API respondió con una lista vacía. No lances una excepción solo porque no haya tareas.</dd><dt>El detalle deja de encontrar la tarea</dt><dd>No cambies las rutas ni <code>task_detail_screen.dart</code>; revisa que cada tarjeta navegue con <code>task.id</code>.</dd><dt>La marca local se pierde al actualizar</dt><dd>Es esperado: actualizar pide de nuevo la versión remota. La persistencia de cambios se estudiará en las sesiones de CRUD.</dd></dl></div>
+<div class="finish-line"><h3>Resultado verificable de la sesión 8</h3><p>TaskFlow muestra datos remotos con estados explícitos y permite recuperar una consulta fallida. Lista y detalle conservan la continuidad de las sesiones 6 y 7.</p></div>
+</div></section></div></main><script src="syntax.js"></script></body></html>

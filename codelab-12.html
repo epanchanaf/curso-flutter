@@ -1,0 +1,82 @@
+<!doctype html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Codelab 12 · Probar modelos, ViewModel y widgets | Curso Flutter</title><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="codelab-navigation.css"></head><body class="codelab-page"><main class="container"><div class="codelab-content"><section class="codelab-section" id="codelab-12"><div class="container"><div class="codelab-title"><div class="session-badge">SESIÓN 12<br><span>2 HORAS</span></div><div><p class="eyebrow">CODELAB 12 · SEMANA 6</p><h2>Probar modelos, ViewModel y widgets</h2><p>Cuatro pruebas repetibles comprueban riesgos concretos sin depender de internet.</p></div></div><div class="learning-box"><strong>Resultado observable:</strong> Cuatro pruebas repetibles comprueban riesgos concretos sin depender de internet.</div><article class="lab-step"><div class="step-number">0</div><div><h3>Preparar TaskFlow</h3><p>Inicio · 15 min; desarrollo y ejemplo guiado · 75 min; cierre y trabajo autónomo · 30 min. Parte de la sesión 11. El proyecto Flutter ya incluye flutter_test. Usa un fake en memoria para no consultar JSONPlaceholder durante las pruebas. Ejecuta primero los comandos desde la raíz de <code>taskflow</code>. Si el proyecto no compila, recupera el último commit funcional antes de avanzar.</p><pre data-language="shell"><code>flutter pub get
+flutter analyze
+flutter run</code></pre><p>Punto de control: abre la lista y el detalle de una tarea; ambos deben conservar el avance de la sesión anterior.</p></div></article><article class="lab-step"><div class="step-number">1</div><div><h3>Conceptos antes de programar</h3><div class="code-reading"><div><strong>Prueba unitaria</strong><span>Comprueba una clase o función aislada.</span></div><div><strong>Prueba de widget</strong><span>Monta una interfaz y comprueba texto o interacción.</span></div><div><strong>Fake</strong><span>Objeto sencillo que implementa el mismo contrato que Repository con datos controlados.</span></div><div><strong>expect</strong><span>Compara el resultado real con el esperado; una diferencia hace fallar la prueba.</span></div></div></div></article><article class="lab-step"><div class="step-number">2</div><div><h3>Probar la conversión de JSON</h3><p>Crea <code>test/task_model_test.dart</code>.</p><pre data-language="dart"><code>import &#x27;package:flutter_test/flutter_test.dart&#x27;;
+import &#x27;package:taskflow/features/tasks/domain/task.dart&#x27;;
+
+void main() {
+  test(&#x27;convierte completed y completa campos ausentes&#x27;, () {
+    final task = Task.fromJson({
+      &#x27;id&#x27;: 7, &#x27;title&#x27;: &#x27;Preparar demo&#x27;,
+      &#x27;completed&#x27;: true, &#x27;userId&#x27;: 1,
+    });
+    expect(task.id, 7);
+    expect(task.isCompleted, isTrue);
+    expect(task.priority, &#x27;Sin prioridad (API)&#x27;);
+  });
+}</code></pre><p>Esta prueba cubre la diferencia entre el JSON remoto y el modelo de seis campos.</p></div></article><article class="lab-step"><div class="step-number">3</div><div><h3>Crear un fake de Repository</h3><p>Crea <code>test/fake_task_repository.dart</code>. Ajusta las firmas si ampliaste el contrato en la sesión 10.</p><pre data-language="dart"><code>import &#x27;package:taskflow/features/tasks/data/task_repository.dart&#x27;;
+import &#x27;package:taskflow/features/tasks/domain/task.dart&#x27;;
+
+class FakeTaskRepository implements TaskRepository {
+  FakeTaskRepository(this.items);
+  final List&lt;Task&gt; items;
+  @override
+  Future&lt;List&lt;Task&gt;&gt; getTasks() async =&gt; List.of(items);
+  @override
+  void save(Task task) {
+    final index = items.indexWhere((item) =&gt; item.id == task.id);
+    if (index &gt;= 0) items[index] = task;
+  }
+  @override
+  Future&lt;Task&gt; createTask(String title) async {
+    final task = Task(id: items.length + 1, title: title,
+      description: &#x27;&#x27;, priority: &#x27;Media&#x27;, isCompleted: false, userId: 1);
+    items.add(task);
+    return task;
+  }
+  @override
+  Future&lt;void&gt; updateTask(Task task) async =&gt; save(task);
+  @override
+  Future&lt;void&gt; deleteTask(int id) async =&gt; items.removeWhere((t) =&gt; t.id == id);
+}</code></pre><p>Un fake permite provocar éxito, vacío o error de manera determinista.</p></div></article><article class="lab-step"><div class="step-number">4</div><div><h3>Probar el ViewModel</h3><p>Crea <code>test/tasks_view_model_test.dart</code> con el fake anterior.</p><pre data-language="dart"><code>import &#x27;package:flutter_test/flutter_test.dart&#x27;;
+import &#x27;package:taskflow/features/tasks/presentation/tasks_view_model.dart&#x27;;
+import &#x27;fake_task_repository.dart&#x27;;
+
+void main() {
+  test(&#x27;lista vacía después de cargar cero tareas&#x27;, () async {
+    final model = TasksViewModel(FakeTaskRepository([]));
+    await model.loadTasks();
+    expect(model.isEmpty, isTrue);
+    expect(model.errorMessage, isNull);
+  });
+}</code></pre><p>Agrega después una prueba de fallo usando un fake que lance una excepción desde <code>getTasks</code>.</p></div></article><article class="lab-step"><div class="step-number">5</div><div><h3>Probar formulario y pantalla vacía</h3><p>Crea <code>test/task_widgets_test.dart</code> y pega el archivo completo. La primera prueba comprueba que Guardar no acepta un título vacío. La segunda usa el fake para comprobar el estado vacío sin hacer red.</p><pre data-language="dart"><code>import &#x27;package:flutter/material.dart&#x27;;
+import &#x27;package:flutter_test/flutter_test.dart&#x27;;
+import &#x27;package:provider/provider.dart&#x27;;
+import &#x27;package:taskflow/features/tasks/presentation/task_form_screen.dart&#x27;;
+import &#x27;package:taskflow/features/tasks/presentation/task_list_screen.dart&#x27;;
+import &#x27;package:taskflow/features/tasks/presentation/tasks_view_model.dart&#x27;;
+import &#x27;fake_task_repository.dart&#x27;;
+
+void main() {
+  testWidgets(&#x27;formulario pide un título&#x27;, (tester) async {
+    await tester.pumpWidget(const MaterialApp(home: TaskFormScreen()));
+    await tester.tap(find.text(&#x27;Guardar&#x27;));
+    await tester.pump();
+    expect(find.text(&#x27;Escribe un título.&#x27;), findsOneWidget);
+  });
+
+  testWidgets(&#x27;lista muestra estado vacío&#x27;, (tester) async {
+    final model = TasksViewModel(FakeTaskRepository([]));
+    await model.loadTasks();
+    await tester.pumpWidget(ChangeNotifierProvider&lt;TasksViewModel&gt;.value(
+      value: model,
+      child: const MaterialApp(home: TaskListScreen()),
+    ));
+    expect(find.text(&#x27;Todavía no hay tareas para mostrar.&#x27;), findsOneWidget);
+  });
+}</code></pre><p>Ejecuta <code>flutter test</code>. Si conservas <code>test/widget_test.dart</code> generado por Flutter y todavía busca <code>MyApp</code>, actualízalo para TaskFlow o retíralo del conjunto de pruebas; no representa la app actual.</p></div></article><aside class="challenge"><p class="eyebrow">TRABAJO AUTÓNOMO INCREMENTAL</p><h3>Aplicar en tu TaskFlow</h3><p><strong>Aplicar:</strong> pruebas de modelo, fake, ViewModel y widget. <strong>Avance:</strong> entrega cuatro pruebas: JSON, estado del ViewModel, validación del formulario y carga o error en la lista. <strong>Evidencia:</strong> salida de <code>flutter test</code> sin fallos.</p></aside><article class="lab-step"><div class="step-number">6</div><div><h3>Comprobar y subir el avance</h3><p>Ejecuta todas las pruebas sin conexión para confirmar que no dependen de la API real.</p><pre data-language="shell"><code>dart format lib
+flutter analyze
+flutter test
+git status
+git add README.md lib test pubspec.yaml pubspec.lock
+git commit -m &quot;test: cubrir flujo esencial de tareas&quot;
+git push origin main</code></pre><p>Si tu rama no se llama main, usa el nombre que muestra <code>git branch --show-current</code>. Comprueba el commit en GitHub; el ejemplo guiado no se versiona como evidencia aislada.</p></div></article><div class="common-errors"><h3>Errores frecuentes y primera acción</h3><dl><dt>No encuentra package:taskflow</dt><dd>Confirma el campo <code>name</code> de <code>pubspec.yaml</code> y adapta los imports.</dd><dt>El fake no implementa todo</dt><dd>Compara sus métodos con <code>TaskRepository</code> actual.</dd><dt>Una prueba consulta internet</dt><dd>Reemplaza el Repository real por el fake antes de montar el widget.</dd></dl></div><div class="finish-line"><h3>Resultado verificable</h3><p>Cuatro pruebas repetibles comprueban riesgos concretos sin depender de internet. La evidencia del avance autónomo debe estar en el repositorio remoto.</p></div></div></section></div></main><script src="syntax.js"></script></body></html>

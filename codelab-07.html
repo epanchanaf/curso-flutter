@@ -1,0 +1,367 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Codelab 07 · HTTP, asincronía y JSON | Curso Flutter</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="codelab-navigation.css" />
+</head>
+<body class="codelab-page">
+<main class="container"><div class="codelab-content">
+<section class="codelab-section" id="codelab-7">
+  <div class="container">
+    <div class="codelab-title">
+      <div class="session-badge">SESIÓN 7<br><span>3 HORAS</span></div>
+      <div><p class="eyebrow">CODELAB 07 · SEMANA 4</p><h2>Leer tareas de una API REST</h2><p>Conectarás el TaskFlow de la sesión 6 a una API de práctica. La lista y el detalle seguirán funcionando con la misma arquitectura MVVM.</p></div>
+    </div>
+    <div class="learning-box"><strong>Resultado observable:</strong> al iniciar TaskFlow con internet, la lista muestra las tareas del usuario 1 obtenidas por HTTP; al tocar una, se abre el detalle correcto. La consola muestra el código HTTP 200 y <code>flutter analyze</code> termina sin errores.</div>
+
+    <article class="lab-step"><div class="step-number">0</div><div>
+      <h3>Preparación y tiempos · 180 minutos</h3>
+      <div class="code-reading">
+        <div><strong>Inicio · 0–25 min</strong><span>Recuperar el proyecto de la sesión 6, comprobar su funcionamiento y leer una respuesta JSON real.</span></div>
+        <div><strong>Desarrollo · 25–130 min</strong><span>Definir HTTP y asincronía, instalar Dio y completar el modelo, Service, Repository, ViewModel y lista.</span></div>
+        <div><strong>Práctica acompañada · 130–155 min</strong><span>Ejecutar la consulta, seguir una tarea desde el servidor hasta la pantalla y diagnosticar un error controlado.</span></div>
+        <div><strong>Cierre y avance autónomo · 155–180 min</strong><span>Adaptar y explicar el endpoint elegido, reunir evidencia, hacer commit y push.</span></div>
+      </div>
+      <p><strong>Antes de empezar:</strong> abre la carpeta raíz de tu proyecto <code>taskflow</code>, la que contiene <code>pubspec.yaml</code>. Debe funcionar la versión de la sesión 6: <code>lib/main.dart</code> crea <code>LocalTaskRepository</code>, <code>TaskRepository.getTasks()</code> devuelve una lista local y <code>TasksViewModel</code> muestra lista y detalle. Conserva tus cinco tareas de <code>local_task_repository.dart</code>: no las borres; servirán como respaldo y para comparar datos locales con remotos.</p>
+      <pre data-language="shell"><code>flutter pub get
+flutter analyze
+flutter run</code></pre>
+      <p><strong>Punto de control:</strong> antes de editar, abre una tarea y vuelve a la lista. Si la app no funciona, termina primero la sesión 6. En los pasos siguientes reemplazarás archivos completos solo cuando se indique; los demás archivos permanecen como están.</p>
+    </div></article>
+
+    <article class="lab-step"><div class="step-number">1</div><div>
+      <h3>Inicio · entender el recorrido de una respuesta</h3>
+      <p>Una <strong>API</strong> es una interfaz para pedir datos a otro programa. <strong>REST</strong> organiza esos datos como recursos accesibles por direcciones. Un <strong>cliente</strong> es TaskFlow; el <strong>servidor</strong> responde. Un <strong>endpoint</strong> es la URL concreta de un recurso. <strong>HTTP</strong> es el protocolo de la petición y la respuesta; <code>GET</code> significa consultar sin enviar una nueva tarea.</p>
+      <p>Usaremos <a href="https://jsonplaceholder.typicode.com/" target="_blank" rel="noopener">JSONPlaceholder</a>, una API pública de datos de prueba. Abre <a href="https://jsonplaceholder.typicode.com/todos/1" target="_blank" rel="noopener">/todos/1</a> en el navegador. La respuesta tiene esta forma:</p>
+      <pre data-language="text"><code>{
+  "userId": 1,
+  "id": 1,
+  "title": "delectus aut autem",
+  "completed": false
+}</code></pre>
+      <div class="code-reading">
+        <div><strong>JSON</strong><span>Formato de texto para intercambiar datos. Las llaves forman un objeto; una respuesta de <code>/todos</code> contiene una lista de objetos entre corchetes.</span></div>
+        <div><strong>Código HTTP</strong><span>El servidor devuelve un número de estado. <code>200</code> indica que esta consulta se atendió correctamente. Un fallo de conexión puede ocurrir antes de recibir un código.</span></div>
+        <div><strong>Future&lt;T&gt;</strong><span>Promesa de que más tarde llegará un valor de tipo <code>T</code> o un error. La red no responde de forma instantánea.</span></div>
+        <div><strong>async / await</strong><span><code>async</code> permite esperar dentro de una función; <code>await</code> pausa esa función hasta obtener el resultado, sin bloquear toda la interfaz.</span></div>
+        <div><strong>fromJson()</strong><span>Convierte un <code>Map&lt;String, dynamic&gt;</code> recibido en un objeto <code>Task</code> con tipos conocidos.</span></div>
+      </div>
+      <p><strong>Comparación con la sesión 6:</strong> <code>Task</code> tenía seis campos. Esta API solo entrega cuatro: <code>completed</code> corresponde a <code>isCompleted</code>; <code>description</code> y <code>priority</code> no existen y recibirán valores explícitos de ejemplo. Esos valores no vienen del servidor. Más adelante, una API propia podrá entregar los seis campos.</p>
+    </div></article>
+
+    <article class="lab-step"><div class="step-number">2</div><div>
+      <h3>Desarrollo A · preparar red y dependencia</h3>
+      <p>Desde la raíz de <code>taskflow</code>, instala <a href="https://pub.dev/packages/dio" target="_blank" rel="noopener">Dio</a>, el cliente HTTP elegido para este curso. <code>flutter pub add</code> agrega una versión compatible a <code>pubspec.yaml</code> y actualiza <code>pubspec.lock</code>. No necesitas agregar <code>http</code> ni llamar manualmente a <code>jsonDecode</code>: Dio puede decodificar JSON.</p>
+      <pre data-language="shell"><code>flutter pub add dio</code></pre>
+      <p>En Android, abre <code>android/app/src/main/AndroidManifest.xml</code>. Dentro de <code>&lt;manifest&gt;</code>, antes de <code>&lt;application&gt;</code>, agrega esta línea si aún no existe. Mantén el resto del archivo generado por Flutter.</p>
+      <pre data-language="text"><code>&lt;uses-permission android:name="android.permission.INTERNET" /&gt;</code></pre>
+      <p><strong>Punto de control:</strong> confirma que <code>pubspec.yaml</code> contiene <code>dio</code> y que el permiso aparece una sola vez en el manifest principal. Usa HTTPS: la URL de este laboratorio empieza con <code>https://</code>.</p>
+    </div></article>
+
+    <article class="lab-step"><div class="step-number">3</div><div>
+      <h3>Desarrollo B · adaptar el modelo sin perder la sesión anterior</h3>
+      <p>Abre <code>lib/features/tasks/domain/task.dart</code> y reemplaza <strong>todo</strong> el archivo por este bloque. Mantiene las seis propiedades y <code>copyWith</code> de la sesión 6. Solo cambia <code>fromJson</code> para reconocer tanto el nombre local <code>isCompleted</code> como el nombre remoto <code>completed</code>.</p>
+      <pre data-language="dart"><code>class Task {
+  const Task({
+    required this.id,
+    required this.title,
+    required this.description,
+    required this.priority,
+    required this.isCompleted,
+    required this.userId,
+  });
+
+  final int id;
+  final String title;
+  final String description;
+  final String priority;
+  final bool isCompleted;
+  final int userId;
+
+  Task copyWith({bool? isCompleted}) {
+    return Task(
+      id: id,
+      title: title,
+      description: description,
+      priority: priority,
+      isCompleted: isCompleted ?? this.isCompleted,
+      userId: userId,
+    );
+  }
+
+  factory Task.fromJson(Map&lt;String, dynamic&gt; json) {
+    return Task(
+      id: json['id'] as int,
+      title: json['title'] as String,
+      description: json['description'] as String? ?? 'Sin descripción (API)',
+      priority: json['priority'] as String? ?? 'Sin prioridad (API)',
+      isCompleted: (json['isCompleted'] ?? json['completed']) as bool,
+      userId: json['userId'] as int,
+    );
+  }
+}</code></pre>
+      <div class="explain"><strong>Cómo leer la conversión:</strong> <code>as int</code> comprueba el tipo de <code>id</code>; <code>String?</code> permite que un campo no exista. <code>??</code> usa el valor de la derecha cuando el de la izquierda es <code>null</code>. Si el servidor cambia un tipo obligatorio, la conversión fallará; en la sesión 8 mostraremos ese error de forma más útil.</div>
+    </div></article>
+
+    <article class="lab-step"><div class="step-number">4</div><div>
+      <h3>Desarrollo C · crear TaskApiService</h3>
+      <p>Crea <code>lib/features/tasks/data/task_api_service.dart</code> y pega el archivo completo. El <strong>Service</strong> conoce la URL, el método HTTP y el formato de la respuesta. La pantalla no debe llamar a Dio directamente. El parámetro <code>userId=1</code> limita los resultados a un usuario para que la práctica sea fácil de comprobar.</p>
+      <pre data-language="dart"><code>import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
+
+import '../domain/task.dart';
+
+class TaskApiService {
+  static const int userId = 1;
+
+  TaskApiService()
+      : _dio = Dio(
+          BaseOptions(
+            baseUrl: 'https://jsonplaceholder.typicode.com',
+            connectTimeout: const Duration(seconds: 10),
+            receiveTimeout: const Duration(seconds: 10),
+          ),
+        );
+
+  final Dio _dio;
+
+  Future&lt;List&lt;Task&gt;&gt; getTasks() async {
+    final response = await _dio.get&lt;List&lt;dynamic&gt;&gt;(
+      '/todos',
+      queryParameters: {'userId': userId},
+    );
+
+    debugPrint('GET /todos?userId=$userId → HTTP ${response.statusCode}');
+    final rows = response.data;
+    if (rows == null) {
+      throw const FormatException('La respuesta no contiene una lista.');
+    }
+
+    return rows.map((row) {
+      final json = Map&lt;String, dynamic&gt;.from(row as Map);
+      return Task.fromJson(json);
+    }).toList();
+  }
+}</code></pre>
+      <p><code>Dio</code> convierte la respuesta JSON en datos Dart; <code>response.data</code> contiene la lista y <code>response.statusCode</code> contiene el estado HTTP. <code>Map.from</code> prepara cada objeto para <code>Task.fromJson</code>. En la configuración normal de Dio, un HTTP no exitoso produce una <code>DioException</code>; por eso el mensaje de consola 200 aparece cuando la respuesta se recibe con éxito.</p>
+      <p><strong>Punto de control:</strong> aún no se verá una lista remota: el Service existe, pero todavía no está conectado al Repository y al ViewModel.</p>
+    </div></article>
+
+    <article class="lab-step"><div class="step-number">5</div><div>
+      <h3>Desarrollo D · hacer asíncrono el contrato del Repository</h3>
+      <p>En la sesión 6, <code>getTasks()</code> entregaba una lista inmediatamente. Una consulta por red necesita <code>Future&lt;List&lt;Task&gt;&gt;</code>. Reemplaza <strong>todo</strong> <code>lib/features/tasks/data/task_repository.dart</code> por:</p>
+      <pre data-language="dart"><code>import '../domain/task.dart';
+
+abstract class TaskRepository {
+  Future&lt;List&lt;Task&gt;&gt; getTasks();
+  void save(Task task);
+}</code></pre>
+      <p>Ahora abre <code>lib/features/tasks/data/local_task_repository.dart</code>. Conserva tus cinco objetos <code>Task(...)</code> y el método <code>save</code>; reemplaza <strong>solo</strong> el método <code>getTasks</code> anterior por estas dos líneas. El archivo local debe compilar aunque la app use el repositorio remoto.</p>
+      <pre data-language="dart"><code>@override
+Future&lt;List&lt;Task&gt;&gt; getTasks() async =&gt; List.unmodifiable(_tasks);</code></pre>
+      <p>Crea <code>lib/features/tasks/data/remote_task_repository.dart</code> con este archivo completo. <code>getTasks</code> pide la lista al Service y guarda una copia en memoria. <code>save</code> solo cambia esa copia; JSONPlaceholder no guarda cambios permanentes y el CRUD remoto se estudiará en la sesión 10.</p>
+      <pre data-language="dart"><code>import '../domain/task.dart';
+import 'task_api_service.dart';
+import 'task_repository.dart';
+
+class RemoteTaskRepository implements TaskRepository {
+  RemoteTaskRepository(this._apiService);
+
+  final TaskApiService _apiService;
+  List&lt;Task&gt; _tasks = [];
+
+  @override
+  Future&lt;List&lt;Task&gt;&gt; getTasks() async {
+    _tasks = await _apiService.getTasks();
+    return List.unmodifiable(_tasks);
+  }
+
+  @override
+  void save(Task task) {
+    final index = _tasks.indexWhere((item) =&gt; item.id == task.id);
+    if (index == -1) return;
+    _tasks[index] = task;
+  }
+}</code></pre>
+      <div class="explain"><strong>Continuidad:</strong> <code>LocalTaskRepository</code> conserva tus tareas de la sesión 6; <code>RemoteTaskRepository</code> es la nueva implementación del mismo contrato. Cambiar la fuente de datos requerirá cambiar una sola construcción en <code>main.dart</code>. Al recargar la API, los cambios hechos con <code>save</code> volverán al valor remoto original.</div>
+    </div></article>
+
+    <article class="lab-step"><div class="step-number">6</div><div>
+      <h3>Desarrollo E · esperar la respuesta en el ViewModel</h3>
+      <p>Reemplaza <strong>todo</strong> <code>lib/features/tasks/presentation/tasks_view_model.dart</code>. El ViewModel sigue siendo el puente entre datos y pantalla. <code>loadTasks</code> espera la red y avisa a Provider cuando termina. Una señal sencilla de carga y error evita que la pantalla quede en blanco; en la sesión 8 ampliarás estos estados y agregarás reintento.</p>
+      <pre data-language="dart"><code>import 'package:flutter/foundation.dart';
+
+import '../data/task_repository.dart';
+import '../domain/task.dart';
+
+class TasksViewModel extends ChangeNotifier {
+  TasksViewModel(this._repository);
+
+  final TaskRepository _repository;
+  List&lt;Task&gt; _tasks = [];
+  bool isLoading = false;
+  String? errorMessage;
+
+  List&lt;Task&gt; get tasks =&gt; List.unmodifiable(_tasks);
+
+  Future&lt;void&gt; loadTasks() async {
+    isLoading = true;
+    errorMessage = null;
+    notifyListeners();
+
+    try {
+      _tasks = await _repository.getTasks();
+    } catch (error) {
+      errorMessage = 'No se pudieron cargar las tareas.';
+      debugPrint('Error al cargar tareas: $error');
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Task? findTask(int? id) {
+    if (id == null) return null;
+    for (final task in _tasks) {
+      if (task.id == id) return task;
+    }
+    return null;
+  }
+
+  void toggleCompleted(int id) {
+    final current = findTask(id);
+    if (current == null) return;
+
+    final updated = current.copyWith(isCompleted: !current.isCompleted);
+    _repository.save(updated);
+    _tasks = [
+      for (final task in _tasks) if (task.id == id) updated else task,
+    ];
+    notifyListeners();
+  }
+}</code></pre>
+      <p><strong>Por qué cambió <code>toggleCompleted</code>:</strong> antes llamaba otra vez a <code>getTasks()</code> después de <code>save</code>. Ahora esa llamada volvería a consultar el servidor y perdería el cambio local. El método actualiza la lista en memoria y notifica a las dos pantallas. <code>try/catch/finally</code> permite cerrar la carga tanto si hay datos como si hay un fallo.</p>
+    </div></article>
+
+    <article class="lab-step"><div class="step-number">7</div><div>
+      <h3>Desarrollo F · mostrar los datos y conectar la app</h3>
+      <p>Reemplaza <strong>todo</strong> <code>lib/features/tasks/presentation/task_list_screen.dart</code>. El listado usa el mismo <code>context.watch</code> de la sesión 6, así que Provider reconstruye la vista cuando cambia el ViewModel. La navegación por id se conserva.</p>
+      <pre data-language="dart"><code>import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+
+import 'tasks_view_model.dart';
+
+class TaskListScreen extends StatelessWidget {
+  const TaskListScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final viewModel = context.watch&lt;TasksViewModel&gt;();
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Mis tareas')),
+      body: viewModel.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : viewModel.errorMessage != null
+              ? Center(child: Text(viewModel.errorMessage!))
+              : viewModel.tasks.isEmpty
+                  ? const Center(child: Text('No hay tareas para mostrar.'))
+                  : ListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: viewModel.tasks.length,
+                      itemBuilder: (context, index) {
+                        final task = viewModel.tasks[index];
+                        return Card(
+                          child: ListTile(
+                            leading: Icon(
+                              task.isCompleted
+                                  ? Icons.check_circle
+                                  : Icons.radio_button_unchecked,
+                            ),
+                            title: Text(task.title),
+                            subtitle: Text('Prioridad: ${task.priority}'),
+                            trailing: const Icon(Icons.chevron_right),
+                            onTap: () =&gt; context.push('/task/${task.id}'),
+                          ),
+                        );
+                      },
+                    ),
+    );
+  }
+}</code></pre>
+      <p>Por último, reemplaza <strong>todo</strong> <code>lib/main.dart</code> por este bloque. <code>..loadTasks()</code> crea el ViewModel y llama a su método de carga antes de mostrar la app. <code>taskflow_app.dart</code> y <code>task_detail_screen.dart</code> de la sesión 6 no necesitan cambios.</p>
+      <pre data-language="dart"><code>import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'app/taskflow_app.dart';
+import 'features/tasks/data/remote_task_repository.dart';
+import 'features/tasks/data/task_api_service.dart';
+import 'features/tasks/data/task_repository.dart';
+import 'features/tasks/presentation/tasks_view_model.dart';
+
+void main() {
+  final TaskRepository repository = RemoteTaskRepository(TaskApiService());
+
+  runApp(
+    ChangeNotifierProvider&lt;TasksViewModel&gt;(
+      create: (_) =&gt; TasksViewModel(repository)..loadTasks(),
+      child: const TaskFlowApp(),
+    ),
+  );
+}</code></pre>
+      <p><strong>Recorrido completo:</strong> <code>main.dart</code> construye las dependencias → el ViewModel pide <code>getTasks()</code> → el Repository llama al Service → Dio hace <code>GET</code> → <code>fromJson()</code> crea objetos <code>Task</code> → <code>notifyListeners()</code> actualiza la lista → la ruta abre el detalle por id.</p>
+    </div></article>
+
+    <article class="lab-step"><div class="step-number">8</div><div>
+      <h3>Práctica acompañada · comprobar la consulta</h3>
+      <p>Guarda todos los archivos. Como añadiste una dependencia y un permiso Android, detén la ejecución anterior e inicia la app de nuevo. <code>dart format</code> ordena el código; <code>flutter analyze</code> revisa tipos e importaciones.</p>
+      <pre data-language="shell"><code>dart format lib
+flutter analyze
+flutter run</code></pre>
+      <ol class="numbered">
+        <li>Observa brevemente el indicador de carga. Después deben aparecer las tareas remotas del usuario 1, no tus cinco tareas locales.</li>
+        <li>Busca en la consola <code>GET /todos?userId=1 → HTTP 200</code>. Si no aparece, revisa conexión, permiso y URL.</li>
+        <li>Abre la primera tarea: el título debe coincidir con la lista; el detalle debe indicar usuario 1 y mostrar los valores de ejemplo para descripción y prioridad.</li>
+        <li>Marca la tarea como completada y regresa. El icono debe cambiar. Reinicia la app: el cambio desaparece porque <code>save</code> solo modificó la copia en memoria.</li>
+        <li>Para practicar el diagnóstico, desactiva temporalmente internet en el emulador y reinicia la app. Debe aparecer “No se pudieron cargar las tareas”. Reactiva internet y vuelve a iniciar la app.</li>
+      </ol>
+      <p><strong>Si quieres volver temporalmente a las cinco tareas locales:</strong> en <code>main.dart</code>, importa <code>local_task_repository.dart</code> y cambia únicamente la construcción por <code>final TaskRepository repository = LocalTaskRepository();</code>. Conserva el contrato asíncrono nuevo. Vuelve a <code>RemoteTaskRepository(TaskApiService())</code> para finalizar esta sesión.</p>
+    </div></article>
+
+    <aside class="challenge">
+      <p class="eyebrow">TRABAJO AUTÓNOMO INCREMENTAL · 20 MIN</p><h3>Documentar y comprobar tu fuente de tareas</h3>
+      <p><strong>Aplicar:</strong> <code>Future</code>, <code>async/await</code>, Dio, <code>Task.fromJson</code> y la cadena Service → Repository → ViewModel. <strong>Avance:</strong> conserva la consulta remota en TaskFlow y agrega a tu <code>README.md</code> una sección “API de tareas” con la URL exacta, el parámetro <code>userId</code>, los campos que llegan, los valores que TaskFlow completa por defecto y el hecho de que marcar una tarea aún es local. Cambia la constante <code>userId</code> de <code>TaskApiService</code> a otro valor válido, comprueba sus tareas y deja documentado el valor elegido. <strong>Evidencia:</strong> captura del listado remoto y detalle, consola con HTTP 200 y <code>flutter analyze</code> sin errores. El commit registra esta adaptación de tu proyecto, no solo la copia del ejemplo guiado.</p>
+    </aside>
+
+    <article class="lab-step"><div class="step-number">9</div><div>
+      <h3>Cierre · verificar y subir el avance autónomo</h3>
+      <p>Explica con tus palabras qué parte conoce la URL, cuál convierte JSON y cuál avisa a la vista. Comprueba que el detalle sigue abriendo la tarea correcta y que el README describe el filtro que realmente dejaste en el código. Ejecuta desde la raíz de <code>taskflow</code>:</p>
+      <pre data-language="shell"><code>dart format lib
+flutter analyze
+git status
+git add README.md lib pubspec.yaml pubspec.lock android/app/src/main/AndroidManifest.xml
+git commit -m "feat: consultar tareas desde API"
+git push origin main</code></pre>
+      <p>Si tu rama no se llama <code>main</code>, usa el nombre que muestra <code>git branch --show-current</code>. Confirma en el repositorio remoto que aparecen el README y los archivos nuevos del Service y Repository. La sesión 8 continuará con estados de carga, vacío, error y reintento más completos.</p>
+    </div></article>
+
+    <div class="common-errors"><h3>Errores frecuentes y primera comprobación</h3><dl>
+      <dt>“Target of URI doesn't exist: dio”</dt><dd>Comprueba que estás en la raíz de <code>taskflow</code>, ejecuta <code>flutter pub add dio</code> y después <code>flutter pub get</code>.</dd>
+      <dt>“Invalid override” en el repositorio local</dt><dd>Actualiza <code>LocalTaskRepository.getTasks()</code> para que devuelva <code>Future&lt;List&lt;Task&gt;&gt;</code>, como en el paso 5.</dd>
+      <dt>Falla la conversión de JSON</dt><dd>Abre <code>/todos/1</code> en el navegador y compara los nombres <code>completed</code>, <code>userId</code>, <code>id</code> y <code>title</code> con <code>fromJson</code>. No conviertas <code>completed</code> a texto.</dd>
+      <dt>La lista muestra un error de red</dt><dd>Comprueba internet en el emulador, la URL HTTPS y el permiso en el manifest principal; después reinicia la app.</dd>
+      <dt>La lista sigue mostrando cinco tareas</dt><dd>Revisa que <code>main.dart</code> construya <code>RemoteTaskRepository(TaskApiService())</code> y reinicia la app. Hot Reload puede conservar objetos anteriores.</dd>
+      <dt>El cambio desaparece al reiniciar</dt><dd>Es esperado: <code>save</code> modifica una copia en memoria. La API de práctica no guarda ese cambio; las operaciones remotas se estudiarán más adelante.</dd>
+      <dt><code>git push</code> falla</dt><dd>Consulta <code>git branch --show-current</code> y <code>git remote -v</code> antes de repetir el comando.</dd>
+    </dl></div>
+    <div class="finish-line"><h3>Resultado verificable de la sesión 7</h3><p>TaskFlow consulta una API por HTTPS, convierte JSON en objetos <code>Task</code>, muestra una lista remota y conserva la navegación al detalle. El repositorio remoto contiene el avance autónomo y la documentación de la API elegida.</p></div>
+  </div>
+</section>
+</div></main>
+<script src="syntax.js"></script>
+</body>
+</html>
