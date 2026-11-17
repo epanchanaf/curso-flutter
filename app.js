@@ -162,7 +162,7 @@ const sourceWeeks = [
   },
   {
     number: 8,
-    title: "Cierre técnico, APK y demostración",
+    title: "Cierre técnico, APK y presentación escrita",
     outcome: "Producto entregable, documentado y explicado técnicamente.",
     sessions: [
       {
@@ -174,12 +174,12 @@ const sourceWeeks = [
         autonomous: "<strong>Aplicar:</strong> formato, análisis estático, pruebas y documentación técnica. <strong>Avance:</strong> completar el paquete de entrega con código ordenado, README, capturas, diagrama de arquitectura, funcionalidades y limitaciones conocidas. <strong>Evidencia:</strong> salida correcta de <code>flutter analyze</code> y <code>flutter test</code>, más el README visible en el repositorio. <strong>Versionado:</strong> usar <code>docs: preparar documentación de entrega</code> y ejecutar <code>git push origin main</code>."
       },
       {
-        number: 16, hours: "2 horas", title: "Generación de APK, demostración y evaluación final", goal: "Construir el artefacto de instalación y comunicar las decisiones del proyecto.",
-        start: ["<strong>0–15 min:</strong> explicar el flujo de compilación de lanzamiento y el formato de demostración técnica.", "<strong>0–15 min:</strong> organizar turnos y revisar la lista de comprobación de la presentación."],
-        development: ["<strong>15–90 min:</strong> identificar un APK como el paquete instalable para Android y generar una compilación release que se pueda probar fuera del entorno de desarrollo.", "<strong>15–90 min:</strong> recorrer los flujos críticos: listar, ver detalle, crear, editar, eliminar y responder ante un error.", "<strong>15–90 min:</strong> estructurar una demo con problema, solución, arquitectura, API, demostración funcional y aprendizaje principal.", "<strong>15–90 min:</strong> justificar las decisiones del proyecto: la evaluación considera proceso y producto, no solo el aspecto de la pantalla."],
+        number: 16, hours: "2 horas", title: "Generación de APK y presentación escrita final", goal: "Construir el APK y entregar una presentación escrita verificable del proyecto y su avance.",
+        start: ["<strong>0–15 min:</strong> explicar la compilación release y revisar la estructura de la presentación escrita.", "<strong>0–15 min:</strong> localizar la URL del repositorio y el historial de commits remotos."],
+        development: ["<strong>15–90 min:</strong> generar e instalar el APK release y comprobar los flujos críticos: lista, detalle, formulario y error recuperable.", "<strong>15–90 min:</strong> seleccionar cuatro capturas legibles y redactar problema, arquitectura, API, pruebas y limitaciones.", "<strong>15–90 min:</strong> enlazar al menos un commit remoto por cada una de las 16 sesiones.", "<strong>15–90 min:</strong> verificar que los enlaces, las capturas y la URL del proyecto funcionan desde GitHub."],
         close: ["<strong>90–120 min:</strong> recibir retroalimentación y reconocer próximos pasos: base de datos local, Firebase, notificaciones y publicación.", "<strong>90–120 min:</strong> entregar formalmente repositorio, APK y evidencias."],
         guided: "Generar un APK de lanzamiento y localizar el archivo resultante para instalarlo en un dispositivo o emulador.",
-        autonomous: "<strong>Aplicar:</strong> compilación release, pruebas de aceptación y comunicación técnica. <strong>Avance:</strong> generar e instalar el APK, recorrer la lista de verificación funcional y presentar la app en cinco minutos con al menos una operación conectada a la API. <strong>Evidencia:</strong> archivo APK instalable, enlace del repositorio y video o registro de la demostración. <strong>Versionado:</strong> usar <code>build: preparar entrega final</code> y ejecutar <code>git push origin main</code>."
+        autonomous: "<strong>Aplicar:</strong> compilación release, pruebas de aceptación y comunicación escrita. <strong>Avance:</strong> entregar APK y <code>docs/entrega-final.md</code> con URL del repositorio, enlace a un commit remoto por cada una de las 16 sesiones, cuatro capturas y explicación de arquitectura, API, pruebas y limitaciones. <strong>Evidencia:</strong> documento y enlaces verificables en GitHub, capturas y APK instalable. <strong>Versionado:</strong> usar <code>build: preparar entrega final</code> y ejecutar <code>git push origin main</code>."
       }
     ]
   }
